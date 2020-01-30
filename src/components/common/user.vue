@@ -12,9 +12,9 @@
             <el-button  type="primary" @click="dialogVisible = true;getDepartments()"> <i class="iconfont icon-add"></i> 添加专业用户</el-button>
         </el-card>
             <!-- 显示表格 -->
-            <fieldset class="tableBox" style="border:1px #e2e2e2 solid">
+            <fieldset class="tableBox" style="border:1px #e2e2e2 solid" >
                 <legend>专业用户列表</legend>
-                <el-table :data="tableData" border  style="width: 100%" >
+                <el-table :data="tableData" border  style="width: 100%" height="390">
                     <el-table-column  prop="number"  label="编号"  width="50" ></el-table-column>
                     <el-table-column prop="zwmc" label="专业名称"></el-table-column>
                     <el-table-column prop="ywmc" label="专业英文名称" width="260px"></el-table-column>
@@ -296,9 +296,6 @@ export default{
                         id:uid
                     })
                 )
-                // return this.axios.post('/rcpy/myController?operation=delUser',{
-                //     id:uid
-                // })
             }).catch(() => {
                 this.$message({
                     type: 'info',
@@ -324,8 +321,6 @@ export default{
 }
 .tableBox{
     background-color: red;
-    height: 400px;
-    overflow:scroll;
 }
 /* 面包屑导航 */
 .el-breadcrumb{
