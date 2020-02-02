@@ -69,9 +69,9 @@ export default  {
        },
     //    获取左侧菜单
       async getMenuList(){
-          var {data}=await this.axios.post('/rcpy/myController?operation=forwardMenu');
+          var res=await this.axios.post('/rcpy/myController?operation=forwardMenu');
           //console.log(data);//获取的左侧菜单数据
-          this.menuList=data;
+          this.menuList=res.data;
        },
     //    用户名
        async getUser(){
@@ -114,6 +114,10 @@ export default  {
 }
 .el-menu{
     border-right: solid 0px #e6e6e6;
+}
+.el-menu-item{
+    height: 42px;
+    line-height:42px;
 }
 .collapse{
     background-color: #009688;
