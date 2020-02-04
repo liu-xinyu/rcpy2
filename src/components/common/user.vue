@@ -12,9 +12,9 @@
             <el-button  type="primary" @click="dialogVisible = true;getDepartments()"> <i class="iconfont icon-add"></i> 添加专业用户</el-button>
         </el-card>
             <!-- 显示表格 -->
-            <fieldset class="tableBox" style="border:1px #e2e2e2 solid">
+            <fieldset class="tableBox" style="border:1px #e2e2e2 solid" >
                 <legend>专业用户列表</legend>
-                <el-table :data="tableData" border  style="width: 100%" >
+                <el-table :data="tableData" border  style="width: 100%" height="390" :header-cell-style="{background:'#f5f7fa',color:'#606266'}">
                     <el-table-column  prop="number"  label="编号"  width="50" ></el-table-column>
                     <el-table-column prop="zwmc" label="专业名称"></el-table-column>
                     <el-table-column prop="ywmc" label="专业英文名称" width="260px"></el-table-column>
@@ -32,7 +32,7 @@
                 </el-table>
             </fieldset>
             <!-- 分页 1 2 3 4 5 -->
-                <el-pagination @current-change="handleCurrentChange" background layout="prev, pager, next" :total="90">
+                <el-pagination @current-change="handleCurrentChange" background layout="prev, pager, next" :total="count">
             </el-pagination>
             <!-- 添加用户的对话框 -->
             <el-dialog title="添加专业用户" :visible.sync="dialogVisible" width="35%" @close="addDialogClosed">
@@ -100,10 +100,11 @@
 export default{
     data(){
         return{
+            props:['login'],
             //用于分页 传给服务器的当前的页数 与 一页显示多少条数据
             index:{ 
                 pageIndex: 1, //当前的页数
-				pageSize: 10//分页大小
+				pageSize: 10//每次向服务器发送请求的个数  分页大小
             },
             // 用于存储表格数据的数据
             tableData:[],
@@ -154,11 +155,12 @@ export default{
     methods:{
         // 获取信息，得到后渲染表格 信息
         async getUserList(){
+            console.log(this.login )
           const res = await this.axios.get('/rcpy/myController?operation=listAllUser',{
                 params:this.index
             });
             const {data}=res;
-            //console.log(res);// 一页的数据 服务器传过来的总数据 有状态和所需要展示的列表数据
+            console.log(res);// 一页的数据 服务器传过来的总数据 有状态和所需要展示的列表数据
             //console.log(data) 含有总数据条数
             this.count=data.count; //获取总信息数
            
@@ -296,9 +298,6 @@ export default{
                         id:uid
                     })
                 )
-                // return this.axios.post('/rcpy/myController?operation=delUser',{
-                //     id:uid
-                // })
             }).catch(() => {
                 this.$message({
                     type: 'info',
@@ -317,15 +316,13 @@ export default{
 }
 </script>
 
-<style>
+<style scoped>
 .main{
     height: 100%;
     
 }
 .tableBox{
     background-color: red;
-    height: 400px;
-    overflow:scroll;
 }
 /* 面包屑导航 */
 .el-breadcrumb{
