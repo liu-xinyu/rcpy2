@@ -42,7 +42,7 @@
         </el-menu>
       </el-aside>
       <!-- 右侧内容主体 -->
-      <el-main>
+      <el-main :style="{height:scrollerHeight}">
         <router-view :login='loginId'></router-view>
       </el-main>
     </el-container>
@@ -61,9 +61,17 @@ export default {
   },
   created() {
     this.getMenuList() //绑定左侧的菜单（获取数据）
+     console.log(document.body.clientHeight)
+     
   },
   mounted() {
     this.getUser() //为了加载用户名 （右上角）
+  },
+  computed:{
+    // 控制main的高度
+    scrollerHeight:function () {
+      return (document.body.clientHeight-88)+'px'
+    }
   },
 
   methods: {
@@ -97,10 +105,10 @@ export default {
 <style>
 .home-container {
   height: 100%;
+  overflow: hidden;
 }
 .el-header {
   background-color: white;
-  height: 120px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -113,7 +121,7 @@ export default {
 }
 .el-main {
   background-color: white;
-  /* padding: 0; */
+  /* height: 559px; */
 }
 .iconfont {
   margin-right: 10px;
