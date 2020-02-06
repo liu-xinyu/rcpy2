@@ -4,8 +4,8 @@ import login from '@/components/login.vue'
 import home from '@/components/home'
 import welcome from '@/components/welcome'
 import user from '@/components/common/user'
-import base2 from '@/components/common/base2'
-import department from '@/components/common/department'
+import base from '@/components/common/base'
+import addDepartment from '@/components/common/addDepartment'
 import files from '@/components/common/files'
 import files3 from '@/components/common/files3'
 import files2 from '@/components/common/files2'
@@ -18,7 +18,7 @@ import role from '@/components/common/role'
 import showzgtoadmin from '@/components/common/showzgtoadmin'
 import showzgtoyx from '@/components/common/showzgtoyx'
 import uploadfiles from '@/components/common/uploadfiles'
-import user2 from '@/components/common/user2'
+import departmentUser from '@/components/common/departmentUser'
 import zyzg  from '@/components/common/zyzg'
 
 
@@ -46,12 +46,12 @@ const router= new Router({
           component:user
         },
         {
-          path:'/base2',
-          component:base2
+          path:'/base',
+          component:base
         },
         {
-          path:'/department',
-          component:department 
+          path:'/addDepartment',
+          component:addDepartment 
         },
         {
           path:'/files2',
@@ -98,8 +98,8 @@ const router= new Router({
           component:uploadfiles   
         },
         {
-          path:'/user2',
-          component:user2   
+          path:'/departmentUser',
+          component:departmentUser   
         },
         {
           path:'/zyzg',

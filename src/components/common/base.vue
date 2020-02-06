@@ -30,7 +30,7 @@
             <el-button
               type="danger"
               size="small"
-              @click="editBase(scope.row.id,scope.row.zy);baseDialogVisible=true"
+              @click="editBase(scope.row.id,scope.row.zy);"
             >修改</el-button>
             <el-button type="danger" size="small" @click="delBase(scope.row.id)">删除</el-button>
           </template>
@@ -103,7 +103,7 @@ export default {
       paginationHide: false,
       //   修改的对话框 false对话框隐藏
       baseDialogVisible: false,
-      //   修改对话框
+      //   修改对话框 
       baseObject: {
         studyHours: null,
         schoolYear: null
@@ -112,14 +112,15 @@ export default {
       zy: null,
       //   添加用户的对话框 显示隐藏
       addDialogVisible: false,
-      //   添加基本数据的专业名称显示
+      //   添加院系用户名称显示 [{},{}...] input
       basezy: [],
+      // 添加院系的对话框
       addBaseForm: {
         yxmc: null,
         zxszh: null,
         xn: null
       },
-
+      // 用来验证表单的 
       addBaseRules: {
         yxmc: [{ required: true, message: "选择院系", trigger: "blur" }],
         zxszh: [{ required: true, message: "请填入数字", trigger: "blur" }],
@@ -151,6 +152,8 @@ export default {
     },
     // 修改按钮
     editBase(id, zy) {
+       // 修改对话框
+        this.baseDialogVisible=true
       this.id = id
       this.zy = zy
       // 将此行的id作为参数发起请求 再次发起请求得到此行的修改数据
@@ -169,6 +172,7 @@ export default {
           this.baseObject.studyHours = data.data.zxszh
           this.baseObject.schoolYear = data.data.xn
         })
+       
     },
     // 修改按钮中的保存按钮
     baseSave() {
@@ -226,7 +230,7 @@ export default {
     },
     // 监听修改用户对话框的关闭事件
     baseEditClosed() {
-      this.$refs.baseForm.resetFields()
+    //   this.$refs.baseForm.resetFields()
     },
     // 点击提交按钮
     addBaseSave() {

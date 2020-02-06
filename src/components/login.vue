@@ -8,7 +8,6 @@
             <el-form-item prop="username">
                 <el-input prefix-icon="iconfont icon-touxiang" v-model="loginForm.username" placeholder="请输入账号"></el-input>
             </el-form-item>
-            
             <el-form-item prop="password">
                 <el-input  prefix-icon="iconfont icon-mima" v-model="loginForm.password" placeholder="请输入密码"></el-input>
             </el-form-item>
