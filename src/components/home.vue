@@ -42,9 +42,13 @@
         </el-menu>
       </el-aside>
       <!-- 右侧内容主体 -->
-      <el-main :style="{height:scrollerHeight}">
-        <router-view :login='loginId'></router-view>
-      </el-main>
+      <el-container>
+        <el-main :style="{height:scrollerHeight}">
+        <!-- <el-main> -->
+          <router-view :login="loginId"></router-view>
+        </el-main>
+        <el-footer style="height:30px">2020 七点工作室</el-footer>
+      </el-container>
     </el-container>
   </el-container>
 </template>
@@ -56,22 +60,26 @@ export default {
       menuList: [],
       // 左侧的列表折叠
       isCollapse: false,
-      loginId:null
+      loginId: null
     }
   },
   created() {
     this.getMenuList() //绑定左侧的菜单（获取数据）
-     console.log(document.body.clientHeight)
-     
   },
   mounted() {
     this.getUser() //为了加载用户名 （右上角）
+    console.log(document.body.clientWidth)
   },
-  computed:{
+  computed: {
     // 控制main的高度
-    scrollerHeight:function () {
-      return (document.body.clientHeight-88)+'px'
+    scrollerHeight: function() {
+      return document.body.clientHeight - 90 + "px"
     }
+    // ,
+    // scrollerWidth: function() {
+    //   console.log(document.body.clientWidth)
+    //   return document.body.clientWidth - 200 + "px"
+    // }
   },
 
   methods: {
@@ -90,8 +98,8 @@ export default {
     //    用户名
     async getUser() {
       var { data } = await this.axios.get("/rcpy/myController?operation=toUser")
-      console.log(data);
-      this.loginId=data.uid;
+      console.log(data)
+      this.loginId = data.uid
       this.$refs.userid.innerHTML = data.zwmc //赋值
       console.log(this.loginId)
     },
@@ -102,10 +110,10 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .home-container {
   height: 100%;
-  overflow: hidden;
+  overflow-x: hidden;
 }
 .el-header {
   background-color: white;
@@ -140,5 +148,13 @@ export default {
   line-height: 30px;
   letter-spacing: 0.2em;
   cursor: pointer;
+}
+.el-footer {
+  background-color:rgb(226, 226, 226);
+  display: block;
+  /* position: absolute; */
+  line-height: 30px;
+ text-align: center;
+ z-index: 1;
 }
 </style>

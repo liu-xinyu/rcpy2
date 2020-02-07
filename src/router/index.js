@@ -20,6 +20,8 @@ import showzgtoyx from '@/components/common/showzgtoyx'
 import uploadfiles from '@/components/common/uploadfiles'
 import departmentUser from '@/components/common/departmentUser'
 import zyzg  from '@/components/common/zyzg'
+import pagination  from '@/components/common/pagination'
+
 
 
 Vue.use(Router)

@@ -34,13 +34,7 @@
       </el-table>
     </fieldset>
     <!-- 分页 -->
-    <el-pagination
-      background
-      layout="prev, pager, next"
-      :total="countPage"
-      @current-change="baseCurrentChange"
-      :hide-on-single-page="paginationHide"
-    ></el-pagination>
+    <pagination :page="page" @func="show"></pagination>
     <!-- 修改按钮 的弹出框 -->
     <el-dialog title="院系用户信息" :visible.sync="baseDialogVisible" width="40%" top="36vh">
       <el-form ref="editForm">
@@ -77,6 +71,7 @@
   </div>
 </template>
 <script>
+import pagination from "./pagination"
 export default {
   data() {
     return {
@@ -87,10 +82,10 @@ export default {
         pageIndex: 1,
         pageSize: 10
       },
-      //   用来分页页数的绑定 几页
-      countPage: null,
-      //   分页效果的显示隐藏
-      paginationHide: false,
+      page: {
+        pageCount: null, //   用来分页页数的绑定 几页
+        pageValue: false //   分页效果的显示隐藏
+      },
       //   修改的对话框 false对话框隐藏
       baseDialogVisible: false,
       //  修改对话框 所显示的数据 以及点击修改保存按钮所要传递的参数
@@ -115,6 +110,10 @@ export default {
       }
     }
   },
+  components: {
+    //   分页组件
+    pagination
+  },
   methods: {
     //   页面加载 数据请求 绑定表格
     baseList() {
@@ -126,15 +125,14 @@ export default {
           console.log(res)
           if (res.status !== 200) return this.$message.error("数据绑定错误")
           this.yUserData = res.data.list //绑定数据
-          this.countPage = res.data.count
-          this.countPage > 10
-            ? (this.paginationHide = false)
-            : (this.paginationHide = true) //判断分页的显示隐藏
+          this.page.pageCount = res.data.count
+          this.page.pageCount > 10
+            ? (this.page.pageValue = false)
+            : (this.pagr.pageValue = true) //判断分页的显示隐藏
         })
     },
-    // 点击分页数字的切换 重新发起请求
-    baseCurrentChange(newData) {
-      this.baseParams.pageIndex = newData
+    show(msg) {
+      this.baseParams.pageIndex = msg
       this.baseList()
     },
     // 修改按钮
@@ -254,9 +252,7 @@ export default {
 </script>
 
 <style>
-.div1 {
-  position: relative;
-}
+
 .el-breadcrumb {
   font-size: 16px;
   margin-bottom: 10px;
@@ -266,10 +262,7 @@ export default {
   padding: 5px 0;
   text-align: center;
 }
-.el-pagination {
-  position: fixed;
-  bottom: 0;
-}
+
 /* 修改对话框 */
 .el-form {
   text-align: center;
