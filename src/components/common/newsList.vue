@@ -320,8 +320,8 @@ export default {
 </script>
 
 <style scoped>
-td,
-th {
+.el-table,
+.hidden-columns {
   color: black;
 }
 .el-tag {

@@ -28,7 +28,7 @@
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button
-              type="danger"
+              type="success"
               size="small"
               @click="editBase(scope.row.id,scope.row.zy);"
             >修改</el-button>
@@ -275,6 +275,11 @@ export default {
   font-size: 16px;
   margin-bottom: 10px;
   background-color: red;
+}
+/* 表格颜色 */
+.el-table,
+.hidden-columns {
+  color: black;
 }
 .el-table td,
 .el-table th {

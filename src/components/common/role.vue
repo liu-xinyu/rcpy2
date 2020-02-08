@@ -198,6 +198,10 @@ export default {
 </script>
 
 <style scoped>
+.el-table,
+.hidden-columns {
+  color: black;
+}
 .el-dialog__body {
   padding:0px 10px;
   color: black;

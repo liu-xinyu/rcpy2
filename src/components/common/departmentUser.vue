@@ -252,15 +252,14 @@ export default {
 </script>
 
 <style>
-
 .el-breadcrumb {
   font-size: 16px;
   margin-bottom: 10px;
 }
-.el-table td,
-.el-table th {
-  padding: 5px 0;
-  text-align: center;
+/* 改变表格中的字体颜色 */
+.el-table,
+.hidden-columns {
+  color: black;
 }
 
 /* 修改对话框 */

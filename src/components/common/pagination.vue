@@ -4,6 +4,7 @@
       background
       layout="prev, pager, next"
       :total="page.pageCount"
+      :page-size="page.pageSize"
       :hide-on-single-page="page.pageValue"
       @current-change="CurrentPageChange"
     ></el-pagination>

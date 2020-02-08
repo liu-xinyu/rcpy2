@@ -57,7 +57,8 @@ export default {
       //  分页 页数
       page: {
         pageCount: null, //   第几页
-        pageValue: null
+        pageValue: null,
+        pageSize:10
       },
       addDepartmentDialogVisible: false,
       addForm: {
@@ -171,6 +172,10 @@ export default {
   font-size: 16px;
   margin-bottom: 10px;
 }
+.el-table,
+.hidden-columns {
+  color: black;
+}
 td {
   text-align: left;
 }
@@ -181,7 +186,7 @@ td {
 .card {
   padding: 13px;
   background-color: rgba(122, 122, 122, 0.133);
-  width: 99%;
+  width: 97%;
   border-left: 5px green solid;
 }
 </style>

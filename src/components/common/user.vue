@@ -383,9 +383,9 @@ export default {
 td {
   text-align: center;
 }
-.pagination {
-  height: 90px;
-  width: 100%;
+.el-table,
+.hidden-columns {
+  color: black;
 }
 .el-pagination {
   /* margin-top: 10px; */
