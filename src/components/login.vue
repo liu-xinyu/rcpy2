@@ -30,17 +30,16 @@ export default {
     return {
         //这是登录表单的数据绑定对象
      loginForm:{
-         username:'教务处',
-         password:'123'
+         username:'软件工程',
+         password:'123456'
      },
      loginRules:{
          username:[
             { required: true, message: '请输入账号密码', trigger: 'blur' },
-            { min: 3, max:10, message: '长度在 3 到 10 个字符', trigger: 'blur' }
+            { min: 2,message: '长度至少是2个字符', trigger: 'blur' }
          ],
          password:[
-            { required: true, message: '请输入账号密码', trigger: 'blur' },
-            { min: 3, max: 10, message: '长度在 3 到 10 个字符', trigger: 'blur' }
+            { required: true, message: '请输入账号密码', trigger: 'blur' }
          ]
      }
     }

@@ -12,7 +12,7 @@ import files2 from '@/components/common/files2'
 import projectHomePage from '@/components/common/projectHomePage'  //方案首页
 import kcxz from '@/components/common/kcxz' //课程性质
 import newsList from '@/components/common/newsList'
-import newsList2 from '@/components/common/newsList2'
+import zyList from '@/components/common/zyList'
 import plan from '@/components/common/plan'
 import role from '@/components/common/role'  //角色管理
 import showzgtoadmin from '@/components/common/showzgtoadmin'
@@ -76,8 +76,8 @@ const router= new Router({
           component:newsList  
         },
         {
-          path:'/newsList2',
-          component:newsList2 
+          path:'/zyList',
+          component:zyList 
         },
         {
           path:'/plan',

@@ -1,6 +1,6 @@
 <template name="component-name">
-  <div class="page">
-    <el-pagination
+  <div >
+    <el-pagination class="page"
       background
       layout="prev, pager, next"
       :total="page.pageCount"
