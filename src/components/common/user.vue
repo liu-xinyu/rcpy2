@@ -48,12 +48,15 @@
       </el-table>
     </fieldset>
     <!-- 分页 1 2 3 4 5 -->
-    <el-pagination
+    <!-- <el-pagination
       @current-change="handleCurrentChange"
       background
       layout="prev, pager, next"
       :total="count"
-    ></el-pagination>
+    ></el-pagination>-->
+
+    <pagination :page="page" @func="show"></pagination>
+
     <!-- 添加用户的对话框 -->
     <el-dialog title="添加专业用户" :visible.sync="dialogVisible" width="35%" @close="addDialogClosed">
       <!-- 添加用户的主体区域 -->
@@ -116,6 +119,8 @@
 </template>
 
 <script>
+import pagination from "./pagination"
+
 export default {
   data() {
     return {
@@ -128,6 +133,12 @@ export default {
       // 用于存储表格数据的数据
       tableData: [],
       count: 0,
+      // 分页 页数
+      page: {
+        pageCount: null, //   第几页
+        pageValue: null,
+        pageSize: 10
+      },
       dialogVisible: false,
       EditDialogVisible: false,
       // 获取添加专业用的中的各个input的值
@@ -164,7 +175,6 @@ export default {
           { required: true, message: "请输入密码", trigger: "blur" }
         ]
       },
-
       departments: [],
       // 用于修改用户对话框的数据显示
       editForm: {},
@@ -172,12 +182,15 @@ export default {
       editFormDepartments: []
     }
   },
+  components: {
+    pagination
+  },
   methods: {
     // 获取信息，得到后渲染表格 信息
     async getUserList() {
       // console.log(this.login )
       const res = await this.axios.get(
-        "/rcpy/myController?operation=listAllUser",
+        "/rcpy/zyUserManageServlet?operation=listAllZyUser",
         {
           params: this.index
         }
@@ -185,22 +198,21 @@ export default {
       const { data } = res
       console.log(res) // 一页的数据 服务器传过来的总数据 有状态和所需要展示的列表数据
       //console.log(data) 含有总数据条数
-      this.count = data.count //获取总信息数
-
+      this.page.pageCount = data.count //获取总信息数
+      this.page.pageValue=data.count>5?false:true
       // console.log(data.list) //展示的列表数据
       this.tableData = data.list //获取表格信息
       //console.log(this.tableData)
     },
-    // 分页改变当前index
-    handleCurrentChange(newdata) {
-      //console.log(newdata)
-      this.index.pageIndex = newdata
+    // 子组件 分页
+    show(msg) {
+      this.index.pageIndex = msg
       this.getUserList()
     },
     // 获取添加专业用户中的院系信息
     async getDepartments() {
       const res = await this.axios.post(
-        "/rcpy/collegeListServlet?operation=selectAllCollege"
+        "/rcpy/publicServlet?operation=selectAllDepartment"
       )
       const { data, status } = res
       if (status !== 200) return this.$message.error("网络错误！")
@@ -226,7 +238,7 @@ export default {
         console.log(this.addForm.did)
         console.log(this.addForm)
         const res = await this.axios.post(
-          "/rcpy/myController?operation=addUser",
+          "/rcpy/zyUserManageServlet?operation=addZyUser",
           this.$qs.stringify(this.addForm)
         )
         const { data, status } = res
@@ -244,10 +256,10 @@ export default {
     //用于展示用户的 修改对话框 showEditDialog
     async showEditDialog(id) {
       //    得到所选中的专业名称的id
-      //console.log(id);
+      console.log(id+'修改对话框');
       this.EditDialogVisible = true
       const res = await this.axios.post(
-        "/rcpy/myController?operation=saveUserById",
+        "/rcpy/zyUserManageServlet?operation=saveZyUserUid",
         this.$qs.stringify({
           id: id
         })
@@ -259,15 +271,15 @@ export default {
       }
       //  得到所选中的id的信息 并绑定展示
       const res2 = await this.axios.post(
-        "/rcpy/myController?operation=findUserById"
+        "/rcpy/zyUserManageServlet?operation=findZyUserMessageByUid"
       )
       console.log(res2.data)
       this.editForm = res2.data
       //console.log("editForm")
       //console.log(this.editForm)
-      //  获取所有的院系 并绑定
+      // 修改对话框中 获取所有的院系 并绑定 展示数据
       const res3 = await this.axios.post(
-        "rcpy/collegeListServlet?operation=selectAllCollege"
+        "rcpy/publicServlet?operation=selectAllDepartment"
       )
       //console.log(res3) 获取所有的院系信息
       if (res.status !== 200) {
@@ -290,12 +302,13 @@ export default {
       })
       // console.log(this.editForm);//得到修改后的editForm的对象
     },
-    // 点击 保存  触发事件 发送保存请求并传递修改后的数据
+    // 修改中的保存按钮  触发事件 发送保存请求并传递修改后的数据
     async editFormSave() {
       //console.log(this.editForm); //修改好的数据
 
       const res = await this.axios.post(
-        "/rcpy/myController?operation=editUser",
+        // 
+        "/rcpy/zyUserManageServlet?operation=updateZyUserByUid",
         this.$qs.stringify({
           uid: this.editForm.uid, //各个专业的id
           zydm: this.editForm.zydm, //专业代码
@@ -309,9 +322,7 @@ export default {
       if (res.data !== 1) {
         return this.$message.error("修改用户失败")
       }
-
       // 刷新数据列表
-
       this.getUserList()
       // 提示修改成功
       this.$message.success("更新用户成功")
@@ -331,7 +342,7 @@ export default {
             message: "删除成功!"
           })
           return this.axios.post(
-            "/rcpy/myController?operation=delUser",
+            "/rcpy/zyUserManageServlet?operation=delZyUser",
             this.$qs.stringify({
               id: uid
             })

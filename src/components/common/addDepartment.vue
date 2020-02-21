@@ -82,7 +82,7 @@ export default {
     getDepartmentList() {
       this.axios
         .post(
-          "rcpy/collegeListServlet?operation=selectAlldepartment",
+          "rcpy/departmentMessageManageServlet?operation=selectAllDepartment",
           this.$qs.stringify({
             pageIndex: this.params.pageIndex, //页数
             pageSize: this.params.pageSize //信息条数
@@ -107,12 +107,10 @@ export default {
         type: "warning"
       })
         .then(data => {
-          this.$message({
-            type: "success",
-            message: "删除成功!"
-          })
+          
+          console.log(data)
           return this.axios.post(
-            "rcpy/collegeListServlet?operation=deldepartment",
+            "rcpy/departmentMessageManageServlet?operation=delDepartmentMessage",
             this.$qs.stringify({
               id: did
             })
@@ -123,8 +121,17 @@ export default {
             type: "info",
             message: "已取消删除"
           })
+          throw new Error();
         })
         .then(data => {
+          console.log(data)
+          if(data.data==1){
+            this.$message.success('删除成功')
+          }else if(data.data==0){
+            this.$message.error('删除失败')
+          }else if(data.data==2){ 
+            this.$message.error('该院系下有专业用户 不可删除')
+          }
           this.getDepartmentList()
         })
     },
@@ -140,7 +147,7 @@ export default {
         //以下代码是发请求。。。
         this.axios
           .post(
-            "rcpy/collegeListServlet?operation=addDepartment",
+            "rcpy/departmentMessageManageServlet?operation=addDepartmentMessage",
             this.$qs.stringify({
               name: this.addForm.addDepartmentName
             })

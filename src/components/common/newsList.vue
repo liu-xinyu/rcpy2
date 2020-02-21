@@ -184,7 +184,7 @@ export default {
     getNewsList() {
       this.axios
         .post(
-          "rcpy/myController?operation=showtoadmin",
+          "rcpy/departmentArticleServlet?operation=findPassUser",
           this.$qs.stringify(this.page)
         )
         .then(data => {
@@ -212,7 +212,7 @@ export default {
       console.log(type, uid)
       this.axios
         .post(
-          "rcpy/myController?operation=changeDeaprtmentType",
+          "rcpy/publicServlet?operation=changeType",
           this.$qs.stringify({
             type: type,
             uid: uid
@@ -233,16 +233,18 @@ export default {
     async checkHomePage(name) {
       console.log(name)
       const res = await this.axios.post(
-        "rcpy/myController?operation=saveZWMC",
+        "rcpy/publicServlet?operation=saveZyUserZWMC",
         this.$qs.stringify({
           zwmc: name
         })
       )
       console.log(res)
       const res2 = await this.axios.post(
-        "rcpy/myController?operation=showCategoryData"
+        "rcpy/publicServlet?operation=showRcpyFirstPageMessage"
       )
+      if(res2.data==null) return
       this.homedescription = res2.data
+      //没有数据的话 控制台会 报错
       console.log(res2)
     },
     // 2.1 查看首页关闭的时候 显示的信息归位空 否则影响下一个数据的显示
@@ -257,7 +259,7 @@ export default {
       this.planName = name
       const res = this.axios
         .post(
-          "rcpy/myController?operation=saveZWMC",
+          "rcpy/publicServlet?operation=saveZyUserZWMC",
           this.$qs.stringify({
             zwmc: name
           })
@@ -267,12 +269,14 @@ export default {
         })
 
       this.axios
-        .get("rcpy/courseServlet?operation=selectAllCourseByZy", {
+        .get("rcpy/publicServlet?operation=showRcpyPlanMessage", {
           params: this.planParameter
         })
         .then(res => {
+          console.log(res)
           this.planObject = res.data.list
           this.planCount = res.data.count
+          console.log(this.planCount)
           if (this.planCount > 50) {
             // this.planPaginationValue = false
             this.currentPageNumber = true
@@ -297,14 +301,14 @@ export default {
     },
     // 4，下载专业计划安排表
     loadMajorPlan(zwmc,dname,name){
-      this.axios.post(`rcpy/table?operation=copy${name}`,this.$qs.stringify({
+      this.axios.post(`rcpy/tableServlet?operation=copy${name}`,this.$qs.stringify({
         zwmc:zwmc,
         dname:dname
       })).then(res=>{
         if(res.data.flag==='0'){
           this.$message.error('出现错误')
         }else if(res.data.flag==='1'){
-          window.location.href="rcpy/table?operation=downLoadFile&filePath="+res.data.filePath+"&fileName="+res.data.fileName
+          window.location.href="rcpy/tableServlet?operation=downLoadFile&filePath="+res.data.filePath+"&fileName="+res.data.fileName
         }
       }).catch(error=>{
         this.$message.error('服务器出错请联系管理员 错误代码'+error)

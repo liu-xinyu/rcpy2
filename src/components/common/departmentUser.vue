@@ -115,14 +115,14 @@ export default {
     pagination
   },
   methods: {
-    //   页面加载 数据请求 绑定表格
+    //   页面加载 数据请求 绑定表格 院系用户信息获取
     baseList() {
       this.axios
-        .get("rcpy/myController?operation=listDepartmentUser", {
+        .get("rcpy/yxUserManageServlet?operation=listAllYxUser", {
           params: this.baseParams
         })
         .then(res => {
-          console.log(res)
+          // console.log(res) 表格数据绑定
           if (res.status !== 200) return this.$message.error("数据绑定错误")
           this.yUserData = res.data.list //绑定数据
           this.page.pageCount = res.data.count
@@ -139,33 +139,39 @@ export default {
     editBase(id) {
       this.baseDialogVisible = true
       this.id = id
-
       // 将id传给后台 后台根据id查询用户信息 防止页面数据错误（一切来自用户的信息都是不可信的 ）
       this.axios.post(
-        "rcpy/myController?operation=saveUserById",
+        "rcpy/yxUserManageServlet?operation=saveYxUserUid",
         this.$qs.stringify({
           id: id
         })
       )
+      // 后台保存了所要修改的院系的id 返回对应id的信息
       this.axios
-        .post("rcpy/myController?operation=preDepartment")
+        .post("rcpy/yxUserManageServlet?operation=findYxUserMessageByUid")
         .then(data => {
           console.log(data)
           this.yname = data.data.zwmc
           this.password = data.data.password
         })
     },
-    // 修改按钮中的保存按钮
+    // 修改按钮中的保存按钮 将院系id 和中文名称 密码作为参数传递
     baseSave() {
-      this.axios.post(
-        "rcpy/myController?operation=editUser2",
-        this.$qs.stringify({
-          uid: this.id,
-          zwmc: this.yname,
-          password: this.password
+      this.axios
+        .post(
+          "rcpy/yxUserManageServlet?operation=updateYxUserByUid",
+          this.$qs.stringify({
+            uid: this.id,
+            zwmc: this.yname,
+            password: this.password
+          })
+        )
+        .then(res => {
+          console.log(res)
+          if (res.data !== 1) return this.$message.error("修改密码错误")
+          this.$message.success("修改密码成功")
+          this.baseList()
         })
-      )
-      this.baseList()
     },
     // 删除按钮
     delBase(id) {
@@ -181,7 +187,7 @@ export default {
             message: "删除成功!"
           })
           return this.axios.post(
-            "rcpy/myController?operation=delUser",
+            "rcpy/yxUserManageServlet?operation=delYxUser",
             this.$qs.stringify({
               id: id
             })
@@ -201,9 +207,9 @@ export default {
     // 添加用户 所要显示的所有院系
     addUser() {
       this.axios
-        .post("rcpy/collegeListServlet?operation=selectAllCollege")
+        .post("rcpy/publicServlet?operation=selectAllDepartment")
         .then(data => {
-          console.log(data)
+          // console.log(data)
           this.basezy = data.data
           console.log(this.basezy)
         })
@@ -211,30 +217,24 @@ export default {
     //添加院系用户 点击提交按钮
     addBaseSave1() {
       this.$refs.baseForm.validate(valid => {
-        console.log(valid)
+        // console.log(valid)
         if (!valid) {
           this.addDialogVisible = true
           return
         }
         this.axios
           .post(
-            "rcpy/myController?operation=addUser2",
-            this.$qs.stringify(
-              {
-                zwmc: this.addBaseForm.zwmc,
-                ywmc: this.addBaseForm.ywmc,
-                password: this.addBaseForm.password
-              },
-              {
-                headers: {
-                  "Content-Type":
-                    "application/x-www-form-urlencoded;charset=utf-8"
-                }
-              }
-            )
+            "rcpy/yxUserManageServlet?operation=addYxUser",
+            this.$qs.stringify({
+              zwmc: this.addBaseForm.zwmc,
+              ywmc: this.addBaseForm.ywmc,
+              password: this.addBaseForm.password
+            })
           )
           .then(res => {
-            console.log(res)
+            // console.log(res) 添加用户中保存按钮 点击后的返回值
+            if(res.data!==1) return this.$message.error('添加院系用户失败')
+            this.$message.success('添加院系用户成功')
             this.baseList()
             this.addDialogVisible = false
           })

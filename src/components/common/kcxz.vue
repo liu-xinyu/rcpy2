@@ -7,7 +7,7 @@
     </el-breadcrumb>
     <!-- 添加院系按钮 -->
     <div class="card">
-      <el-button type="primary" size="small" @click="addCourse()">
+      <el-button type="primary" @click="addCourse()">
         <i class="iconfont icon-add"></i> 添加院系信息
       </el-button>
     </div>
@@ -62,7 +62,6 @@
 import pagination from "./pagination"
 export default {
   data() {
-    // 发送给服务器的参数，第几页 几条数据
     return {
       // 发送给服务器的参数，第几页 几条数据
 
@@ -94,11 +93,12 @@ export default {
     pagination
   },
   methods: {
+    // 获取表格数据
     getCkxzList() {
       this.axios
         .post(
-          "rcpy/KcxzServlet?operation=ListKcxz",
-          this.$qs.stringify(this.courseParams)
+          "rcpy/kcxzServlet?operation=ListKcxz",
+          this.$qs.stringify(this.courseParams)//发送参数 第几页信息 返回的信息条数
         )
         .then(res => {
           console.log(res)
@@ -118,7 +118,7 @@ export default {
       this.dialogCourseVisible = true
       this.axios
         .post(
-          "rcpy/KcxzServlet?operation=saveKcxzId",
+          "rcpy/kcxzServlet?operation=saveKcxzId",
           this.$qs.stringify({
             id: id
           })
@@ -127,7 +127,7 @@ export default {
           console.log(res)
           if (res.status !== 200)
             return this.$message.error("无法获取当前用户信息id")
-          return this.axios.post("rcpy/KcxzServlet?operation=findKcxzById")
+          return this.axios.post("rcpy/kcxzServlet?operation=findKcxzById")
         })
         .then(res => {
           if(res.status!==200) return this.$message.error("无法获取当前用户的课程性质名称")
@@ -140,7 +140,7 @@ export default {
       this.dialogCourseVisible = false
       this.axios
         .post(
-          "rcpy/KcxzServlet?operation=updateKcxz",
+          "rcpy/kcxzServlet?operation=updateKcxz",
           this.$qs.stringify({
             id: this.updateKcxzId,
             name: this.editCourseInfo
@@ -156,7 +156,7 @@ export default {
     delCourse(id){
       // KcxzServlet?operation=delKcxz
       console.log(id)
-      this.axios.post("rcpy/KcxzServlet?operation=delKcxz",this.$qs.stringify({
+      this.axios.post("rcpy/kcxzServlet?operation=delKcxz",this.$qs.stringify({
         id:id
       })).then(res=>{
         console.log(res)
@@ -174,14 +174,16 @@ export default {
       this.addDialogVisible = false
       this.axios
         .post(
-          "rcpy/KcxzServlet?operation=addKcxz",
+          "rcpy/kcxzServlet?operation=addKcxz",
           this.$qs.stringify({
             name: this.addCourseName
           })
         )
         .then(data => {
           console.log(data)
+          if(data.data!==1) return this.$message.error("添加失败，请重试")
           // 返回的data为1
+          this.$message.success("添加成功")
           this.getCkxzList()
         })
     }

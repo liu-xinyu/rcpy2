@@ -68,7 +68,6 @@ export default {
   },
   mounted() {
     this.getUser() //为了加载用户名 （右上角）
-    console.log(document.body.clientWidth)
   },
   computed: {
     // 控制main的高度
@@ -90,18 +89,18 @@ export default {
     //    获取左侧菜单
     async getMenuList() {
       var res = await this.axios.post(
-        "/rcpy/myController?operation=forwardMenu"
+        "/rcpy/menuServlet?operation=forwardMenu"
       )
       //console.log(data);//获取的左侧菜单数据
       this.menuList = res.data
     },
-    //    用户名
+    // 右上角的用户名
     async getUser() {
-      var { data } = await this.axios.get("/rcpy/myController?operation=toUser")
+      var { data } = await this.axios.get("/rcpy/loginServlet?operation=userMessage")
       console.log(data)
       this.loginId = data.uid
       this.$refs.userid.innerHTML = data.zwmc //赋值
-      console.log(this.loginId)
+      console.log('等级为 '+this.loginId)
     },
     isCollapseF() {
       this.isCollapse = !this.isCollapse

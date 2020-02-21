@@ -103,31 +103,27 @@ export default {
     },
     xinyu(index) {
       this.list[index] = !this.list[index]
-      
     },
-    //   角色列表获取函数
+    //角色列表获取函数
     async getRolelist() {
-
-      const res = await this.axios.get(
-        "rcpy/myController?operation=listAllRole"
-      )
+      const res = await this.axios.get("rcpy/roleServlet?operation=listAllRole")
       //  console.log(res) //{data: {…}, status: 200, statusText: "OK", headers: {…}, config: {…}, …}
       if (res.status !== 200) {
         return this.$message.error("角色获取失败")
       }
       this.tableRoleData = res.data.list //绑定数据 渲染列表
     },
-    // 弹出框的要求
+    //角色及权限分配 点击查询当前角色权限第一步：将当前选中的角色rid存在后台
     async saveRid(id, name) {
-      this.rid = id;
-      this.name = name;
-      console.log(id, name+'弹出框的要求');
+      this.rid = id
+      this.name = name
+      console.log(id, name + "弹出框的要求")
       const res = await this.axios.post(
-        "rcpy/myController?operation=saveRid",
+        "rcpy/roleServlet?operation=saveRid",
         this.$qs.stringify({
           rid: id
         })
-      );
+      )
       // console.log(res);
       if (res.status !== 200) {
         return this.$message.error("点击按钮 角色获取失败")
@@ -136,7 +132,7 @@ export default {
     // 弹出框后的数据请求 知道哪些应该被选中
     async showright() {
       const res = await this.axios.get(
-        "rcpy/myController?operation=preRoleMessage"
+        "rcpy/roleServlet?operation=findRolePrivilegeMessage"
       )
       console.log(res)
       res.data.forEach((element, index) => {
@@ -155,7 +151,7 @@ export default {
         this.list.forEach((element, i) => {
           this.list[i] = false
         })
-        console.log(this.list)
+        // console.log(this.list)
       }, 100)
     },
     close() {
@@ -164,31 +160,37 @@ export default {
     // 点击 保存更改 1.发送请求保存数据 2.关闭对话框
     async UpdateRole() {
       // console.log(this.rid);
-      console.log("点击保存关闭按钮")
-     
+      //console.log("点击保存关闭按钮")
 
       this.list.forEach((element, index) => {
         if (element == true) {
           this.list2.push(index)
-          
-         
         }
       })
-   
-      this.list2=[...new Set(this.list2)]
+
+      this.list2 = [...new Set(this.list2)]
       const res2 = await this.axios.post(
-        "rcpy/myController?operation=toUpdateRole",
-        this.$qs.stringify({
-          value: this.list2,
-          name: this.name,
-          rid: this.rid
-        },{
-          arrayFormat:'repeat'
-        })
+        "rcpy/roleServlet?operation=updateRolePrivilege",
+        this.$qs.stringify(
+          {
+            value: this.list2,
+            name: this.name,
+            rid: this.rid
+          },
+          {
+            arrayFormat: "repeat"
+          }
+        )
       )
-      console.log(this.list2.toString(), this.name, this.rid);
-      this.list2=[]
-      this.$router.go(0);
+      console.log(res2.data)
+      if (res2.data === true) {
+        this.$message.success("修改角色权限成功")
+        this.list2 = []
+        this.$router.go(0)
+        return
+      }
+      this.$message.error("修改失败")
+      //console.log(this.list2.toString(), this.name, this.rid)
     }
   },
   created() {
@@ -203,7 +205,7 @@ export default {
   color: black;
 }
 .el-dialog__body {
-  padding:0px 10px;
+  padding: 0px 10px;
   color: black;
 }
 .checkList {

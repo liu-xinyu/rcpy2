@@ -53,7 +53,7 @@ export default {
     login(){
         this.$refs.loginFormRef.validate(async valid=>{
             if(!valid) return;
-            var result=await this.axios.post('/rcpy/myController?operation=login', 
+            var result=await this.axios.post('/rcpy/loginServlet?operation=login', 
                 this.$qs.stringify({
                     username: this.loginForm.username,
                     password: this.loginForm.password

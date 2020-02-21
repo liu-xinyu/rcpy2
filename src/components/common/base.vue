@@ -1,4 +1,4 @@
-<template name="component-name">
+<template>
   <div class="div1">
     <!-- 面包屑导航 -->
     <el-breadcrumb separator-class="el-icon-arrow-right">
@@ -27,24 +27,14 @@
         <!-- 操作按钮 -->
         <el-table-column label="操作">
           <template slot-scope="scope">
-            <el-button
-              type="success"
-              size="small"
-              @click="editBase(scope.row.id,scope.row.zy);"
-            >修改</el-button>
+            <el-button type="success" size="small" @click="editBase(scope.row.id);">修改</el-button>
             <el-button type="danger" size="small" @click="delBase(scope.row.id)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
     </fieldset>
     <!-- 分页 -->
-    <el-pagination
-      background
-      layout="prev, pager, next"
-      :total="countPage"
-      @current-change="baseCurrentChange"
-      :hide-on-single-page="paginationHide"
-    ></el-pagination>
+
     <!-- 修改按钮 的弹出框 -->
     <el-dialog
       title="修改基本数据"
@@ -84,9 +74,11 @@
         <el-button @click="addBaseSave()" type="primary">提 交</el-button>
       </span>
     </el-dialog>
+    <pagination :page="page" @func="show"></pagination>
   </div>
 </template>
 <script>
+import pagination from "./pagination"
 export default {
   data() {
     return {
@@ -97,13 +89,13 @@ export default {
         pageIndex: 1,
         pageSize: 10
       },
-      //   用来分页页数的绑定
-      countPage: null,
-      //   分页效果的显示隐藏
-      paginationHide: false,
-      //   修改的对话框 false对话框隐藏
+      page: {
+        pageCount: null, //   第几页 用来分页页数的绑定
+        pageValue: null, //修改的对话框 false对话框隐藏
+        pageSize: 10
+      },
       baseDialogVisible: false,
-      //   修改对话框 
+      //   修改对话框
       baseObject: {
         studyHours: null,
         schoolYear: null
@@ -120,7 +112,7 @@ export default {
         zxszh: null,
         xn: null
       },
-      // 用来验证表单的 
+      // 用来验证表单的
       addBaseRules: {
         yxmc: [{ required: true, message: "选择院系", trigger: "blur" }],
         zxszh: [{ required: true, message: "请填入数字", trigger: "blur" }],
@@ -128,56 +120,62 @@ export default {
       }
     }
   },
+  components: {
+    pagination
+  },
   methods: {
     //   页面加载 数据请求 绑定表格
     baseList() {
       this.axios
-        .get("rcpy/uploadController?operation=selectAllBase", {
+        .get("rcpy/basicDataManageServlet?operation=selectBasicDateMessage", {
           params: this.baseParams
         })
         .then(res => {
-          console.log(res)
+          // console.log(res)
           if (res.status !== 200) return this.$message.error("数据绑定错误")
           this.basedata = res.data.list //绑定数据
-          this.countPage = res.data.count
-          this.countPage > 10
-            ? (this.paginationHide = false)
-            : (this.paginationHide = true) //判断分页的显示隐藏
+          this.page.pageCount = res.data.count
+          this.page.pageCount > 10
+            ? (this.page.pageValue = false)
+            : (this.page.pageValue = true) //判断分页的显示隐藏
         })
     },
-    // 点击分页数字的切换 重新发起请求
-    baseCurrentChange(newData) {
-      this.baseParams.pageIndex = newData
+
+    // 子组件 分页
+    show(msg) {
+      this.baseParams.pageIndex = msg
       this.baseList()
     },
     // 修改按钮
-    editBase(id, zy) {
-       // 修改对话框
-        this.baseDialogVisible=true
+    editBase(id) {
+      //传过去的是id
+      
+      this.baseDialogVisible = true// 修改对话框
       this.id = id
-      this.zy = zy
       // 将此行的id作为参数发起请求 再次发起请求得到此行的修改数据
       this.axios
         .post(
-          "rcpy/uploadController?operation=saveBaseId",
+          "rcpy/basicDataManageServlet?operation=saveBasicId",
           this.$qs.stringify({
             id: id
           })
         )
         .then(data => {
-          //   第二次请求
-          return this.axios.post("rcpy/uploadController?operation=findBaseById")
+          //   第二次请求 得到对话框中的 周和时长 学年
+          return this.axios.post(
+            "rcpy/basicDataManageServlet?operation=findBasicDataManageById"
+          )
         })
         .then(data => {
+          this.zy = data.data.zy
           this.baseObject.studyHours = data.data.zxszh
           this.baseObject.schoolYear = data.data.xn
         })
-       
     },
     // 修改按钮中的保存按钮
     baseSave() {
       this.axios.post(
-        "rcpy/uploadController?operation=editBase",
+        "rcpy/basicDataManageServlet?operation=updateBasicDataManage",
         this.$qs.stringify({
           id: this.id,
           zy: this.zy,
@@ -201,7 +199,7 @@ export default {
             message: "删除成功!"
           })
           return this.axios.post(
-            "rcpy/uploadController?operation=delBase",
+            "rcpy/basicDataManageServlet?operation=delBasicDateMessageById",
             this.$qs.stringify({
               id: id
             })
@@ -221,28 +219,27 @@ export default {
     // 添加用户
     addUser() {
       this.axios
-        .post("rcpy/myController?operation=queryAllProject")
+        .post("rcpy/basicDataManageServlet?operation=findAllZyName")
         .then(data => {
-          console.log(data)
-          this.basezy = data.data
-          console.log(this.basezy)
+          this.basezy = data.data //获取到所有的专业名称
         })
     },
     // 监听修改用户对话框的关闭事件
     baseEditClosed() {
-    //   this.$refs.baseForm.resetFields()
+      //   this.$refs.baseForm.resetFields()
     },
-    // 点击提交按钮
+    // 点击提交按钮 --添加用户
     addBaseSave() {
       this.$refs.baseForm.validate(valid => {
-        console.log(valid)
+        //console.log(valid) 点击提交按钮 检测input中都输入了文字
         if (!valid) {
           this.addDialogVisible = true
           return
         }
+        // 将填写的信息 作为参数发起请求
         this.axios
           .post(
-            "rcpy/uploadController?operation=addBase",
+            "rcpy/basicDataManageServlet?operation=addBasicDataManage",
             this.$qs.stringify({
               zy: this.addBaseForm.yxmc,
               zxszh: this.addBaseForm.zxszh,
@@ -250,7 +247,8 @@ export default {
             })
           )
           .then(res => {
-            console.log(res)
+            if(res.data!==1) return this.$message.error('添加失败')
+            this.$message.success('添加成功')
             this.baseList()
             this.addDialogVisible = false
           })
