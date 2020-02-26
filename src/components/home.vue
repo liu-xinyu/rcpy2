@@ -14,13 +14,13 @@
             <span style="display:block;" @click="dialogPwdVisible=true">修改密码</span>
           </el-dropdown-item>
           <el-dropdown-item style="display:block">
-            <span style="display:block;text-align:center" @click="logout()" type="info">退 出</span>
+            <span style="display:block;text-align:center" @click="loginAction()" type="info">退 出</span>
           </el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
     </el-header>
     <!-- 修改密码的对话框 -->
-    <el-dialog title="修改密码" :visible.sync="dialogPwdVisible" width="40%">
+    <el-dialog title="修改密码" :visible.sync="dialogPwdVisible" width="40%" id="home" @close="changePasswordClosed()">
       <el-form :model="formPwd" ref="changePwdRef" :rules="changePwdRules">
         <el-form-item label="原密码" label-width="70px" prop="oldpwd">
           <el-input v-model="formPwd.oldpwd" autocomplete="off"></el-input>
@@ -72,6 +72,7 @@
 </template>
 
 <script>
+import {mapActions} from 'vuex';
 export default {
   data() {
     return {
@@ -117,15 +118,8 @@ export default {
   },
 
   methods: {
-    //    退出按钮
-    logout() {
-      console.log("退出")
-      this.axios.get("rcpy/loginServlet?operation=logout").then(res => {
-        console.log(res)
-        if (res.data !== 1) return this.$message.error("退出失败")
-        this.$router.push("/login")
-      })
-    },
+    ...mapActions(['loginAction']),
+   
     // 修改密码
     changePassword() {
       this.$refs.changePwdRef.validate(valid => {
@@ -134,7 +128,7 @@ export default {
         // console.log("修改密码")
         this.axios
           .post(
-            "rcpy/loginServlet?operation=changePassword",
+            "/rcpy/loginServlet?operation=changePassword",
             this.$qs.stringify(this.formPwd)
           )
           .then(res => {
@@ -148,6 +142,10 @@ export default {
             this.dialogPwdVisible = false
           })
       })
+    },
+    // 修改的对话框的关闭事件
+    changePasswordClosed(){
+      this.$refs.changePwdRef.resetFields()
     },
     //    获取左侧菜单
     async getMenuList() {
@@ -215,9 +213,9 @@ export default {
 .el-footer {
   background-color: rgb(226, 226, 226);
   display: block;
-  /* position: absolute; */
   line-height: 30px;
   text-align: center;
   z-index: 1;
 }
+
 </style>

@@ -3,7 +3,7 @@ import Router from 'vue-router'
 import login from '@/components/login.vue'  //登录组件
 import home from '@/components/home'  //
 import welcome from '@/components/welcome'
-import user from '@/components/common/user' 
+import user from '@/components/common/user'
 import base from '@/components/common/base'
 import addDepartment from '@/components/common/addDepartment'
 import files from '@/components/common/files'
@@ -19,123 +19,115 @@ import showzgtoadmin from '@/components/common/showzgtoadmin'
 import showzgtoyx from '@/components/common/showzgtoyx'
 import uploadfiles from '@/components/common/uploadfiles'
 import departmentUser from '@/components/common/departmentUser'
-import zyzg  from '@/components/common/zyzg'
-
+import zyzg from '@/components/common/zyzg'
+import Error from '@/components/common/Error'
 
 
 
 Vue.use(Router)
 
-const router= new Router({
+const router = new Router({
   routes: [
-    {path:'/',redirect:'/login '},
+    { path: '/', redirect: { name: "login" } },
     {
       path: '/login',
-      name: 'login',
+      name: "login",
       component: login
     },
     {
-      path:'/home',
-      component:home,
-      redirect:'welcome',
-      children:[
-        { 
-        path:'/welcome',
-        component:welcome
+      path: '*',
+      component: Error
+    },
+    {
+      path: '/home',
+      component: home,
+      redirect: 'welcome',
+      children: [
+
+        {
+          path: '/welcome',
+          component: welcome
         },
         {
-          path:'/user',
-          component:user
+          path: '/user',
+          component: user
         },
         {
-          path:'/base',
-          component:base
+          path: '/base',
+          component: base
         },
         {
-          path:'/addDepartment',
-          component:addDepartment 
+          path: '/addDepartment',
+          component: addDepartment
         },
         {
-          path:'/files2',
-          component:files2 
+          path: '/files2',
+          component: files2
         },
         {
-          path:'/files3',
-          component:files3  
+          path: '/files3',
+          component: files3
         },
         {
-          path:'/projectHomePage',
-          component:projectHomePage
+          path: '/projectHomePage',
+          component: projectHomePage
         },
         {
-          path:'/kcxz',
-          component:kcxz  
+          path: '/kcxz',
+          component: kcxz
         },
         {
-          path:'/newsList',
-          component:newsList  
+          path: '/newsList',
+          component: newsList
         },
         {
-          path:'/zyList',
-          component:zyList 
+          path: '/zyList',
+          component: zyList
         },
         {
-          path:'/plan',
-          component:plan 
+          path: '/plan',
+          component: plan
         },
         {
-          path:'/role',
-          component:role  
+          path: '/role',
+          component: role
         },
         {
-          path:'/showzgtoadmin',
-          component:showzgtoadmin  
+          path: '/showzgtoadmin',
+          component: showzgtoadmin
         },
         {
-          path:'/showzgtoyx',
-          component:showzgtoyx   
+          path: '/showzgtoyx',
+          component: showzgtoyx
         },
         {
-          path:'/uploadfiles',
-          component:uploadfiles   
+          path: '/uploadfiles',
+          component: uploadfiles
         },
         {
-          path:'/departmentUser',
-          component:departmentUser   
+          path: '/departmentUser',
+          component: departmentUser
         },
         {
-          path:'/zyzg',
-          component:zyzg    
+          path: '/zyzg',
+          component: zyzg
         },
         {
-          path:'/files',
-          component:files    
+          path: '/files',
+          component: files
         }
       ]
     }
   ]
 })
-
-// router.beforeEach((to,from,next)=>{
-//   if(to.path==='/login') return next()
-
-//   const tokenStr=window.sessionStorage.getItem('token')
-//   console.log(tokenStr)
-//   if(!tokenStr) return next('/login')
-//   next()
-// })
-// router.beforeEach((to, from, next) => {
-//   if (to.path === '/login') {
-//     next();
-//   } else {
-//     let token = localStorage.getItem('Authorization');
-//     console.log(token)
-//     if (token === 'null' || token === '') {
-//       next('/login');
-//     } else {
-//       next();
-//     }
-//   }
-// });
+router.beforeEach((to,from,next)=>{
+  // console.log(to);
+  // console.log(from);
+  if(to.path!=='/login'){
+    // console.log("我要去"+to.path);
+    sessionStorage.getItem('id')=="1"?next():router.push({name: 'login'}) 
+  }
+  next()
+})
 
 export default router

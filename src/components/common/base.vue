@@ -1,22 +1,19 @@
 <template>
   <div class="div1">
-    <!-- 面包屑导航 -->
-    <el-breadcrumb separator-class="el-icon-arrow-right">
-      <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item>基本数据</el-breadcrumb-item>
-    </el-breadcrumb>
+  
     <!-- 卡片 -->
-    <el-card style="padding:0;">
+    <div class="card">
       <el-button type="primary" @click="addUser();addDialogVisible = true">
         <i class="iconfont icon-add"></i> 添加专业用户
       </el-button>
-    </el-card>
+    </div>
+      <pagination :page="page" @func="show"></pagination>
     <!-- 表格 展示数据 -->
     <fieldset style="border:1px solid #e2e2e2;padding:10px 15px">
       <legend style="font-size:20px">基本数据表</legend>
       <el-table
         border
-        style="width: 100%"
+        style="width:99%"
         :data="basedata"
         :header-cell-style="{background:'#f5f7fa',color:'#000'}"
       >
@@ -40,9 +37,8 @@
       title="修改基本数据"
       :visible.sync="baseDialogVisible"
       width="20%"
-      top="36vh"
       @close="baseEditClosed()"
-    >
+     >
       <el-form :model="baseObject" ref="editForm">
         <el-form-item label="周和学时" label-width="70px">
           <el-input v-model="baseObject.studyHours"></el-input>
@@ -74,7 +70,7 @@
         <el-button @click="addBaseSave()" type="primary">提 交</el-button>
       </span>
     </el-dialog>
-    <pagination :page="page" @func="show"></pagination>
+    
   </div>
 </template>
 <script>
@@ -117,7 +113,8 @@ export default {
         yxmc: [{ required: true, message: "选择院系", trigger: "blur" }],
         zxszh: [{ required: true, message: "请填入数字", trigger: "blur" }],
         xn: [{ required: true, message: "请填写学年", trigger: "blur" }]
-      }
+      },
+      curPage:null
     }
   },
   components: {
@@ -127,7 +124,7 @@ export default {
     //   页面加载 数据请求 绑定表格
     baseList() {
       this.axios
-        .get("rcpy/basicDataManageServlet?operation=selectBasicDateMessage", {
+        .get("/rcpy/basicDataManageServlet?operation=selectBasicDateMessage", {
           params: this.baseParams
         })
         .then(res => {
@@ -143,6 +140,8 @@ export default {
 
     // 子组件 分页
     show(msg) {
+      this.curPage=msg
+
       this.baseParams.pageIndex = msg
       this.baseList()
     },
@@ -155,7 +154,7 @@ export default {
       // 将此行的id作为参数发起请求 再次发起请求得到此行的修改数据
       this.axios
         .post(
-          "rcpy/basicDataManageServlet?operation=saveBasicId",
+          "/rcpy/basicDataManageServlet?operation=saveBasicId",
           this.$qs.stringify({
             id: id
           })
@@ -163,7 +162,7 @@ export default {
         .then(data => {
           //   第二次请求 得到对话框中的 周和时长 学年
           return this.axios.post(
-            "rcpy/basicDataManageServlet?operation=findBasicDataManageById"
+            "/rcpy/basicDataManageServlet?operation=findBasicDataManageById"
           )
         })
         .then(data => {
@@ -175,7 +174,7 @@ export default {
     // 修改按钮中的保存按钮
     baseSave() {
       this.axios.post(
-        "rcpy/basicDataManageServlet?operation=updateBasicDataManage",
+        "/rcpy/basicDataManageServlet?operation=updateBasicDataManage",
         this.$qs.stringify({
           id: this.id,
           zy: this.zy,
@@ -199,7 +198,7 @@ export default {
             message: "删除成功!"
           })
           return this.axios.post(
-            "rcpy/basicDataManageServlet?operation=delBasicDateMessageById",
+            "/rcpy/basicDataManageServlet?operation=delBasicDateMessageById",
             this.$qs.stringify({
               id: id
             })
@@ -213,13 +212,17 @@ export default {
         })
         .then(data => {
           console.log(data)
+           const totalPage=Math.ceil((this.page.pageCount - 1) / this.page.pageSize)
+          this.curPage= this.curPage > totalPage ? totalPage : this.curPage
+          this.baseParams.pageIndex = this.curPage
+
           this.baseList()
         })
     },
     // 添加用户
     addUser() {
       this.axios
-        .post("rcpy/basicDataManageServlet?operation=findAllZyName")
+        .post("/rcpy/basicDataManageServlet?operation=findAllZyName")
         .then(data => {
           this.basezy = data.data //获取到所有的专业名称
         })
@@ -239,7 +242,7 @@ export default {
         // 将填写的信息 作为参数发起请求
         this.axios
           .post(
-            "rcpy/basicDataManageServlet?operation=addBasicDataManage",
+            "/rcpy/basicDataManageServlet?operation=addBasicDataManage",
             this.$qs.stringify({
               zy: this.addBaseForm.yxmc,
               zxszh: this.addBaseForm.zxszh,
@@ -265,10 +268,8 @@ export default {
 }
 </script>
 
-<style>
-.div1 {
-  position: relative;
-}
+<style scoped>
+
 .el-breadcrumb {
   font-size: 16px;
   margin-bottom: 10px;
@@ -284,16 +285,20 @@ export default {
   padding: 5px 0;
   text-align: center;
 }
-.el-pagination {
-  position: fixed;
-  bottom: 0;
-}
+
 /* 修改对话框 */
 .el-form {
   text-align: center;
   padding-right: 20px;
 }
-.el-dialog__body {
-  padding-bottom: 0;
+
+.iconfont {
+  margin-right: 2px;
+  font-size: 12px;
+}
+.card {
+  padding: 13px;
+  background-color: rgba(122, 122, 122, 0.133);
+  border-left: 5px green solid;
 }
 </style>

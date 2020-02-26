@@ -2,7 +2,7 @@
   <div>
     <fieldset style="border:1px solid #e2e2e2">
       <legend>文件</legend>
-      <el-table :data="fileTable" border style="width: 100%">
+      <el-table :data="fileTable" border style="width:99%">
         <el-table-column prop="fileName" label="文件名称"></el-table-column>
         <el-table-column prop="filePath" label="路径"></el-table-column>
         <el-table-column label="操作">
@@ -36,7 +36,8 @@ export default {
         pageSize: 15
       },
       //   表格显示
-      fileTable: []
+      fileTable: [],
+      curPage:null
     }
   },
   components: {
@@ -46,7 +47,7 @@ export default {
   methods: {
     getFiles() {
       this.axios
-        .get("rcpy/fileServlet?operation=getAdminPdfFiles", {
+        .get("/rcpy/fileServlet?operation=getAdminPdfFiles", {
           params: this.filesParams
         })
         .then(res => {
@@ -58,6 +59,7 @@ export default {
     },
     // 子组件 分页
     show(msg) {
+      this.curPage=msg
       this.fileParams.pageIndex = msg
       this.getFiles()
     },
@@ -89,13 +91,17 @@ export default {
         .then(res => {
           console.log(res)
           if (res.data !== 1) return this.$message.error("删除失败")
+           const totalPage=Math.ceil((this.page.pageCount - 1) / this.page.pageSize)
+          this.curPage= this.curPage > totalPage ? totalPage : this.curPage
+          this.fileParams.pageIndex = this.curPage
+
           this.$message.success("删除成功")
           this.getFiles()
         })
     },
     // 预览文件
     previewFile(path){
-      window.open("rcpy/fileServlet?operation=viewPdf&filePath="+encodeURI(encodeURI(path)))
+      window.open("/rcpy/fileServlet?operation=viewPdf&filePath="+encodeURI(encodeURI(path)))
     }
   },
   created() {

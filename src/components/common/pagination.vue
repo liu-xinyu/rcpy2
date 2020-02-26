@@ -25,7 +25,12 @@ export default {
   },
   watch: {
     newPage() {
-      this.$emit("func", this.newPage)
+     
+       this.$emit("func", this.newPage)
+    },
+    page(){
+      console.log(111);
+      
     }
   }
 }

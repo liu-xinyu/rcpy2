@@ -8,15 +8,11 @@ import router from './router'
 import axios from 'axios'
 import {Message} from 'element-ui'
 import qs from 'qs';
+
+import store from './vuex/store'
 Vue.prototype.$qs = qs;
 
-// axios.interceptors.request.use(config=>{
-//   console.log(config.headers.Authorization);
-//   console.log(config.headers.token);
-//   config.headers.Authorization=window.sessionStorage.getItem('token');
 
-//   return config;
-// })
 Vue.prototype.axios=axios;
 
 Vue.use(ElementUI)
@@ -26,6 +22,7 @@ Vue.prototype.$message=Message
 new Vue({
   el: '#app',
   router,
+  store,
   components: { App },
   template: '<App/>'
 })

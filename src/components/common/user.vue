@@ -1,17 +1,11 @@
 <template>
   <div class="main">
-    <!-- 面包屑 scope.row.id-->
-    <el-breadcrumb separator-class="el-icon-arrow-right">
-      <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item>专业用户管理</el-breadcrumb-item>
-    </el-breadcrumb>
-
     <!-- 卡片 -->
-    <el-card style="padding:0;">
+    <div class="card">
       <el-button type="primary" @click="dialogVisible = true;getDepartments()">
         <i class="iconfont icon-add"></i> 添加专业用户
       </el-button>
-    </el-card>
+    </div>
     <!-- 显示表格 -->
     <fieldset class="tableBox" style="border:1px #e2e2e2 solid">
       <legend>专业用户列表</legend>
@@ -20,7 +14,7 @@
         border
         style="width: 100%"
         :header-cell-style="{background:'#f5f7fa',color:'#606266'}"
-      >
+       >
         <el-table-column prop="number" label="编号" width="50"></el-table-column>
         <el-table-column prop="zwmc" label="专业名称"></el-table-column>
         <el-table-column prop="ywmc" label="专业英文名称" width="260px"></el-table-column>
@@ -48,17 +42,12 @@
       </el-table>
     </fieldset>
     <!-- 分页 1 2 3 4 5 -->
-    <!-- <el-pagination
-      @current-change="handleCurrentChange"
-      background
-      layout="prev, pager, next"
-      :total="count"
-    ></el-pagination>-->
+    
 
     <pagination :page="page" @func="show"></pagination>
 
     <!-- 添加用户的对话框 -->
-    <el-dialog title="添加专业用户" :visible.sync="dialogVisible" width="35%" @close="addDialogClosed">
+    <el-dialog title="添加专业用户" :visible.sync="dialogVisible" width="35%" @close="addDialogClosed" top="12vh">
       <!-- 添加用户的主体区域 -->
       <el-form :model="addForm" ref="addFormRef" label-width="100px" :rules="addFormRules">
         <el-form-item label="院系">
@@ -69,10 +58,10 @@
         <el-form-item label="专业代码" prop="zydm">
           <el-input v-model="addForm.zydm" placeholder="请输入专业代码"></el-input>
         </el-form-item>
-        <el-form-item label="专业中文名称" prop="zwmc">
+        <el-form-item label="专业中文名称" prop="zwmc" label-width="110px">
           <el-input v-model="addForm.zwmc" placeholder="请输入专业的英文名称"></el-input>
         </el-form-item>
-        <el-form-item label="专业英文名称" prop="ywmc">
+        <el-form-item label="专业英文名称" prop="ywmc" label-width="110px">
           <el-input v-model="addForm.ywmc" placeholder="请输入专业英文名称"></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="password">
@@ -86,7 +75,7 @@
       </span>
     </el-dialog>
     <!-- 修改用户的对话框  -->
-    <el-dialog title="修改用户" :visible.sync="EditDialogVisible" width="40%">
+    <el-dialog title="修改用户" :visible.sync="EditDialogVisible" width="40%" top="12vh">
       <el-form :model="editForm" ref="ruleForm" label-width="100px">
         <el-form-item label="院系">
           <el-select ref="editSelect" v-model="editForm.name" @change="change()">
@@ -179,7 +168,8 @@ export default {
       // 用于修改用户对话框的数据显示
       editForm: {},
       // 修改对话框的院系 得到所有的院系
-      editFormDepartments: []
+      editFormDepartments: [],
+      curPage:null
     }
   },
   components: {
@@ -199,13 +189,14 @@ export default {
       console.log(res) // 一页的数据 服务器传过来的总数据 有状态和所需要展示的列表数据
       //console.log(data) 含有总数据条数
       this.page.pageCount = data.count //获取总信息数
-      this.page.pageValue=data.count>5?false:true
+      this.page.pageValue = data.count > 5 ? false : true
       // console.log(data.list) //展示的列表数据
       this.tableData = data.list //获取表格信息
       //console.log(this.tableData)
     },
     // 子组件 分页
     show(msg) {
+      this.curPage=msg
       this.index.pageIndex = msg
       this.getUserList()
     },
@@ -256,7 +247,7 @@ export default {
     //用于展示用户的 修改对话框 showEditDialog
     async showEditDialog(id) {
       //    得到所选中的专业名称的id
-      console.log(id+'修改对话框');
+      console.log(id + "修改对话框")
       this.EditDialogVisible = true
       const res = await this.axios.post(
         "/rcpy/zyUserManageServlet?operation=saveZyUserUid",
@@ -279,7 +270,7 @@ export default {
       //console.log(this.editForm)
       // 修改对话框中 获取所有的院系 并绑定 展示数据
       const res3 = await this.axios.post(
-        "rcpy/publicServlet?operation=selectAllDepartment"
+        "/rcpy/publicServlet?operation=selectAllDepartment"
       )
       //console.log(res3) 获取所有的院系信息
       if (res.status !== 200) {
@@ -307,7 +298,7 @@ export default {
       //console.log(this.editForm); //修改好的数据
 
       const res = await this.axios.post(
-        // 
+        //
         "/rcpy/zyUserManageServlet?operation=updateZyUserByUid",
         this.$qs.stringify({
           uid: this.editForm.uid, //各个专业的id
@@ -356,6 +347,10 @@ export default {
         })
         .then(data => {
           console.log(data)
+           const totalPage=Math.ceil((this.page.pageCount - 1) / this.page.pageSize)
+          this.curPage= this.curPage > totalPage ? totalPage : this.curPage
+          this.index.pageIndex = this.curPage
+
           this.getUserList()
         })
     }
@@ -426,5 +421,15 @@ td {
 
 .el-form-item__label {
   text-align: center;
+}
+
+.iconfont {
+  margin-right: 2px;
+  font-size: 12px;
+}
+.card {
+  padding: 13px;
+  background-color: rgba(122, 122, 122, 0.133);
+  border-left: 5px green solid;
 }
 </style>

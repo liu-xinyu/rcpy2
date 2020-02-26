@@ -1,10 +1,6 @@
 <template>
   <div>
-    <!-- 面包屑 scope.row.id-->
-    <el-breadcrumb separator-class="el-icon-arrow-right">
-      <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item>课程性质</el-breadcrumb-item>
-    </el-breadcrumb>
+   
     <!-- 添加院系按钮 -->
     <div class="card">
       <el-button type="primary" @click="addCourse()">
@@ -85,7 +81,8 @@ export default {
       // 修改课程信息
       editCourseInfo: null,
       // 修改课程信息 所对应的id
-      updateKcxzId: null
+      updateKcxzId: null,
+      curPage:null
     }
   },
   components: {
@@ -97,7 +94,7 @@ export default {
     getCkxzList() {
       this.axios
         .post(
-          "rcpy/kcxzServlet?operation=ListKcxz",
+          "/rcpy/kcxzServlet?operation=ListKcxz",
           this.$qs.stringify(this.courseParams)//发送参数 第几页信息 返回的信息条数
         )
         .then(res => {
@@ -105,10 +102,13 @@ export default {
           this.courseList = res.data.list
           this.page.pageCount = res.data.count
           this.page.pageValue=res.data.count>5?false:true
+        },err=>{
+          alert("错误"+err)
         })
     },
     // 子组件 分页
     show(msg) {
+      this.curPage=msg
       this.courseParams.pageIndex = msg
       this.getCkxzList()
     },
@@ -118,7 +118,7 @@ export default {
       this.dialogCourseVisible = true
       this.axios
         .post(
-          "rcpy/kcxzServlet?operation=saveKcxzId",
+          "/rcpy/kcxzServlet?operation=saveKcxzId",
           this.$qs.stringify({
             id: id
           })
@@ -127,7 +127,7 @@ export default {
           console.log(res)
           if (res.status !== 200)
             return this.$message.error("无法获取当前用户信息id")
-          return this.axios.post("rcpy/kcxzServlet?operation=findKcxzById")
+          return this.axios.post("/rcpy/kcxzServlet?operation=findKcxzById")
         })
         .then(res => {
           if(res.status!==200) return this.$message.error("无法获取当前用户的课程性质名称")
@@ -140,7 +140,7 @@ export default {
       this.dialogCourseVisible = false
       this.axios
         .post(
-          "rcpy/kcxzServlet?operation=updateKcxz",
+          "/rcpy/kcxzServlet?operation=updateKcxz",
           this.$qs.stringify({
             id: this.updateKcxzId,
             name: this.editCourseInfo
@@ -155,12 +155,27 @@ export default {
     // 删除按钮
     delCourse(id){
       // KcxzServlet?operation=delKcxz
-      console.log(id)
-      this.axios.post("rcpy/kcxzServlet?operation=delKcxz",this.$qs.stringify({
+      this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          return this.axios.post("/rcpy/kcxzServlet?operation=delKcxz",this.$qs.stringify({
         id:id
-      })).then(res=>{
+      }))
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });          
+        })
+      .then(res=>{
         console.log(res)
         if(res.data!==1) return this.$message.error("删除失败")
+         const totalPage=Math.ceil((this.page.pageCount - 1) / this.page.pageSize)
+          this.curPage= this.curPage > totalPage ? totalPage : this.curPage
+          this.courseParams.pageIndex = this.curPage
+
         this.$message.success("删除成功")
         this.getCkxzList()
       })
@@ -174,7 +189,7 @@ export default {
       this.addDialogVisible = false
       this.axios
         .post(
-          "rcpy/kcxzServlet?operation=addKcxz",
+          "/rcpy/kcxzServlet?operation=addKcxz",
           this.$qs.stringify({
             name: this.addCourseName
           })

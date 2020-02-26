@@ -1,32 +1,48 @@
 <template>
-  <div id="app">
-    <router-view v-if="isRouterAlive"></router-view>
+  <div id="app" @click="clicked">
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
+import { mapActions } from "vuex"
 export default {
-  name: "App",
-  provide() {
-    return {
-      reload: this.reload
-    }
-  },
+  name: "app",
   data() {
     return {
-      isRouterAlive: true
+      lTime: new Date().getTime(), // 最后一次点击的时间
+      cTime: new Date().getTime(), //当前时间
+      tOut: 30 * 60 * 1000 ,
+      //30分钟30 * 60 * 1000 一秒钟 1000
     }
   },
+  mounted() {
+    window.setInterval(this.tTime, 60000)
+  },
   methods: {
-    reload() {
-      this.isRouterAlive = false
-      this.$nextTick(function() {
-        this.isRouterAlive = true
-      })
-    }
+    clicked() {
+      this.lTime = new Date().getTime() //当界面被点击更新点击时间
+    },
+    tTime() {
+      this.cTime = new Date().getTime()
+      if (Math.abs(this.cTime - this.lTime) > this.tOut) {
+        if (sessionStorage.getItem("id") !== "1") {
+          // 未登录状态
+          this.lTime = new Date().getTime()
+        } else {
+          this.loginAction()
+          this.$alert("登录超时，请重新登录", "提示", {
+            confirmButtonText: "确定"
+          })
+        }
+      }
+    },
+    // 退出登录点击事件
+    ...mapActions(["loginAction"])
   }
 }
 </script>
+
 
 <style>
 html,

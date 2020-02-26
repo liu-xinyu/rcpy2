@@ -170,7 +170,7 @@ export default {
         // console.log(valid)
         this.axios
           .post(
-            "rcpy/fangAnServlet?operation=saveFangAnMessage",
+            "/rcpy/fangAnServlet?operation=saveFangAnMessage",
             this.$qs.stringify(this.zyList)
           )
           .then(
@@ -191,7 +191,7 @@ export default {
     // 控制显示提交还是修改按钮 如果有数据就显示数据
     btnvis() {
       this.axios
-        .post("rcpy/fangAnServlet?operation=findFangAnMessage")
+        .post("/rcpy/fangAnServlet?operation=findFangAnMessage")
         .then(res => {
           // console.log(res)
           // console.log(res.data)
@@ -204,7 +204,7 @@ export default {
     updateBtn() {
       // console.log("更新")
       this.axios
-        .post("rcpy/fangAnServlet?operation=findFangAnMessage")
+        .post("/rcpy/fangAnServlet?operation=findFangAnMessage")
         .then(res => {
           // console.log(res)
           this.dialogValue = res.data
@@ -216,7 +216,7 @@ export default {
         if (!valid) return
         this.axios
           .post(
-            "rcpy/fangAnServlet?operation=updateFangAnMessage",
+            "/rcpy/fangAnServlet?operation=updateFangAnMessage",
             this.$qs.stringify({
               zwmc: this.dialogValue.zwmc,
               ywmc: this.dialogValue.ywmc,

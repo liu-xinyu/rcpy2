@@ -1,15 +1,15 @@
-<template name="component-name">
+<template>
   <div>
     <div class="card">
       <el-button type="primary" @click="exportTable()">
-        <i class="el-icon-upload" ></i>   导出职业资格信息表
+        <i class="el-icon-upload"></i>   导出职业资格信息表
       </el-button>
     </div>
     <fieldset style="border:1px solid #e2e2e2;padding:10px 15px">
       <legend>职业资格列表</legend>
       <el-table :data="jobList" border style="width: 100%" :header-cell-style="{background:'#f5f7fa',color:'#000'}">
         <el-table-column prop="number" label="编号" width="40px"></el-table-column>
-        <el-table-column prop="yx" label="姓名"></el-table-column>
+        <el-table-column prop="yx" label="院系"></el-table-column>
         <el-table-column prop="zwmc" label="专业名称"></el-table-column>
         <el-table-column prop="fzdw" label="资格证名称"></el-table-column>
         <el-table-column prop="grade" label="等级"></el-table-column>
@@ -52,13 +52,13 @@ export default {
     getList() {
       this.axios
         .post(
-          "rcpy/zhiYeZiGeServlet?operation=ListAllZhiYeZiGeMessage",
+          "/rcpy/zhiYeZiGeServlet?operation=ListAllZhiYeZiGeMessage",
           this.$qs.stringify(this.listAdminParams)
         )
         .then(res => {
           console.log(res)
           this.page.pageCount=res.data.count
-          this.page.pageValue=res.data.count>5?false:true
+          this.page.pageValue=res.data.count>10?false:true
           this.jobList = res.data.list
         })
     },
@@ -68,10 +68,9 @@ export default {
     },
     // 导出
     exportTable(){
-      // zhiYeZiGeServlet?operation=copyZhiYeZiGe  zyzgServlet?operation=copyzyzg
-        this.axios.post("rcpy/zhiYeZiGeServlet?operation=copyZhiYeZiGe").then(res=>{
+        this.axios.post("/rcpy/zhiYeZiGeServlet?operation=copyZhiYeZiGe").then(res=>{
             console.log(res)
-            window.location.href="rcpy/tableServlet?operation=downLoadFile&filePath="+res.data.filePath+"&fileName="+res.data.fileName;
+            window.location.href="/rcpy/tableServlet?operation=downLoadFile&filePath="+res.data.filePath+"&fileName="+res.data.fileName;
         })
     }
   },
@@ -81,7 +80,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 fieldset {
   font-size: 20px;
 }
@@ -98,4 +97,6 @@ fieldset {
   width: 97%;
   border-left: 5px green solid;
 }
+
+
 </style>

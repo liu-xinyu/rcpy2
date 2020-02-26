@@ -9,7 +9,7 @@
                 <el-input prefix-icon="iconfont icon-touxiang" v-model="loginForm.username" placeholder="请输入账号"></el-input>
             </el-form-item>
             <el-form-item prop="password">
-                <el-input  prefix-icon="iconfont icon-mima" v-model="loginForm.password" placeholder="请输入密码"></el-input>
+                <el-input type="password"  prefix-icon="iconfont icon-mima" v-model="loginForm.password" @keyup.enter.native="login()" placeholder="请输入密码"></el-input>
             </el-form-item>
             <el-form-item class="btns" >
                  <el-button type="primary" @click="login">登录</el-button>
@@ -24,14 +24,15 @@
 </template>
 
 <script>
+import store from '../vuex/store'
 export default {
   name: 'HelloWorld',
   data () {
     return {
         //这是登录表单的数据绑定对象
      loginForm:{
-         username:'软件工程',
-         password:'123456'
+         username:'',
+         password:''
      },
      loginRules:{
          username:[
@@ -58,14 +59,18 @@ export default {
                     password: this.loginForm.password
                 }));
             var {data}=result;
+            
             console.log(data);
            
             if(data!==1){
                 return this.$message.error('账号或者密码输入错误,请重新输入~~~~')
             }
-           
+            
+           sessionStorage.setItem("id",data);
             this.$router.push('/home')
         })
+        
+        // 登录种session
         
        
     }

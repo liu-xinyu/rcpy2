@@ -1,14 +1,10 @@
 <template name="component-name">
   <div>
-    <!-- 面包屑 scope.row.id-->
-    <el-breadcrumb separator-class="el-icon-arrow-right">
-      <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item>专业用户管理</el-breadcrumb-item>
-    </el-breadcrumb>
+   
 
     <!-- 添加用户 -->
     <div class="card">
-      <el-button type="primary" size="small" @click="addDepartmentBtn()">
+      <el-button type="primary"   @click="addDepartmentBtn()">
         <i class="iconfont icon-add"></i> 添加院系信息
       </el-button>
     </div>
@@ -16,7 +12,7 @@
     <!-- 表格 -->
     <fieldset style="border:1px solid #e2e2e2;padding:20px">
       <legend style="font-size:20px">人才培养方案计划安排表</legend>
-      <el-table :data="departmentList" border style="width: 100%">
+      <el-table :data="departmentList" border style="width: 99%">
         <el-table-column prop="number" label="编号" width="180"></el-table-column>
         <el-table-column prop="name" label="姓名"></el-table-column>
         <el-table-column label="操作">
@@ -70,7 +66,8 @@ export default {
           { required: true, message: "请输入院系名称", trigger: "blur" },
           { min: 1, max: 10, message: "长度在 1 到 10 个字符", trigger: "blur" }
         ]
-      }
+      },
+      curPage:null
     }
   },
   components: {
@@ -82,7 +79,7 @@ export default {
     getDepartmentList() {
       this.axios
         .post(
-          "rcpy/departmentMessageManageServlet?operation=selectAllDepartment",
+          "/rcpy/departmentMessageManageServlet?operation=selectAllDepartment",
           this.$qs.stringify({
             pageIndex: this.params.pageIndex, //页数
             pageSize: this.params.pageSize //信息条数
@@ -95,6 +92,7 @@ export default {
     },
     // 从子组件中获得当前点击的页数，
     show(msg) {
+      this.curPage=msg
       this.params.pageIndex = msg
       this.getDepartmentList()
     },
@@ -110,7 +108,7 @@ export default {
           
           console.log(data)
           return this.axios.post(
-            "rcpy/departmentMessageManageServlet?operation=delDepartmentMessage",
+            "/rcpy/departmentMessageManageServlet?operation=delDepartmentMessage",
             this.$qs.stringify({
               id: did
             })
@@ -132,6 +130,9 @@ export default {
           }else if(data.data==2){ 
             this.$message.error('该院系下有专业用户 不可删除')
           }
+          const totalPage=Math.ceil((this.page.pageCount - 1) / this.page.pageSize)
+          this.curPage= this.curPage > totalPage ? totalPage : this.curPage
+          this.params.pageIndex = this.curPage
           this.getDepartmentList()
         })
     },
@@ -147,7 +148,7 @@ export default {
         //以下代码是发请求。。。
         this.axios
           .post(
-            "rcpy/departmentMessageManageServlet?operation=addDepartmentMessage",
+            "/rcpy/departmentMessageManageServlet?operation=addDepartmentMessage",
             this.$qs.stringify({
               name: this.addForm.addDepartmentName
             })
@@ -193,7 +194,6 @@ td {
 .card {
   padding: 13px;
   background-color: rgba(122, 122, 122, 0.133);
-  width: 97%;
   border-left: 5px green solid;
 }
 </style>

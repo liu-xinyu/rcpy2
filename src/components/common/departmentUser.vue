@@ -1,23 +1,19 @@
 <!-- 院系用户管理  -->
 <template name="component-name">
   <div class="div1">
-    <!-- 面包屑导航 -->
-    <el-breadcrumb separator-class="el-icon-arrow-right">
-      <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item>院系用户管理</el-breadcrumb-item>
-    </el-breadcrumb>
+   
     <!-- 卡片 -->
-    <el-card style="padding:0;">
+        <div class="card">
       <el-button type="primary" @click="addUser();addDialogVisible = true">
         <i class="iconfont icon-add"></i> 添加院系用户
       </el-button>
-    </el-card>
+        </div>
     <!-- 表格 展示数据 -->
     <fieldset style="border:1px solid #e2e2e2;padding:10px 15px">
       <legend style="font-size:20px">院系用户列表</legend>
       <el-table
         border
-        style="width: 100%"
+        style="width:99%"
         :data="yUserData"
         :header-cell-style="{background:'#f5f7fa',color:'#000'}"
       >
@@ -36,7 +32,7 @@
     <!-- 分页 -->
     <pagination :page="page" @func="show"></pagination>
     <!-- 修改按钮 的弹出框 -->
-    <el-dialog title="院系用户信息" :visible.sync="baseDialogVisible" width="40%" top="36vh">
+    <el-dialog title="院系用户信息" :visible.sync="baseDialogVisible" width="40%">
       <el-form ref="editForm">
         <el-form-item label="院系中文名称" label-width="100px">
           <el-input v-model="yname" disabled></el-input>
@@ -107,7 +103,8 @@ export default {
         zwmc: [{ required: true, message: "选择院系", trigger: "blur" }],
         ywmc: [{ required: true, message: "请填入数字", trigger: "blur" }],
         password: [{ required: true, message: "请填写学年", trigger: "blur" }]
-      }
+      },
+      curPage:null
     }
   },
   components: {
@@ -118,7 +115,7 @@ export default {
     //   页面加载 数据请求 绑定表格 院系用户信息获取
     baseList() {
       this.axios
-        .get("rcpy/yxUserManageServlet?operation=listAllYxUser", {
+        .get("/rcpy/yxUserManageServlet?operation=listAllYxUser", {
           params: this.baseParams
         })
         .then(res => {
@@ -132,6 +129,7 @@ export default {
         })
     },
     show(msg) {
+      this.curPage=msg
       this.baseParams.pageIndex = msg
       this.baseList()
     },
@@ -141,14 +139,14 @@ export default {
       this.id = id
       // 将id传给后台 后台根据id查询用户信息 防止页面数据错误（一切来自用户的信息都是不可信的 ）
       this.axios.post(
-        "rcpy/yxUserManageServlet?operation=saveYxUserUid",
+        "/rcpy/yxUserManageServlet?operation=saveYxUserUid",
         this.$qs.stringify({
           id: id
         })
       )
       // 后台保存了所要修改的院系的id 返回对应id的信息
       this.axios
-        .post("rcpy/yxUserManageServlet?operation=findYxUserMessageByUid")
+        .post("/rcpy/yxUserManageServlet?operation=findYxUserMessageByUid")
         .then(data => {
           console.log(data)
           this.yname = data.data.zwmc
@@ -159,7 +157,7 @@ export default {
     baseSave() {
       this.axios
         .post(
-          "rcpy/yxUserManageServlet?operation=updateYxUserByUid",
+          "/rcpy/yxUserManageServlet?operation=updateYxUserByUid",
           this.$qs.stringify({
             uid: this.id,
             zwmc: this.yname,
@@ -187,7 +185,7 @@ export default {
             message: "删除成功!"
           })
           return this.axios.post(
-            "rcpy/yxUserManageServlet?operation=delYxUser",
+            "/rcpy/yxUserManageServlet?operation=delYxUser",
             this.$qs.stringify({
               id: id
             })
@@ -201,13 +199,17 @@ export default {
         })
         .then(data => {
           console.log(data)
+           const totalPage=Math.ceil((this.page.pageCount - 1) / this.page.pageSize)
+          this.curPage= this.curPage > totalPage ? totalPage : this.curPage
+          this.baseParams.pageIndex = this.curPage
+
           this.baseList()
         })
     },
     // 添加用户 所要显示的所有院系
     addUser() {
       this.axios
-        .post("rcpy/publicServlet?operation=selectAllDepartment")
+        .post("/rcpy/publicServlet?operation=selectAllDepartment")
         .then(data => {
           // console.log(data)
           this.basezy = data.data
@@ -224,7 +226,7 @@ export default {
         }
         this.axios
           .post(
-            "rcpy/yxUserManageServlet?operation=addYxUser",
+            "/rcpy/yxUserManageServlet?operation=addYxUser",
             this.$qs.stringify({
               zwmc: this.addBaseForm.zwmc,
               ywmc: this.addBaseForm.ywmc,
@@ -251,7 +253,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .el-breadcrumb {
   font-size: 16px;
   margin-bottom: 10px;
@@ -269,5 +271,15 @@ export default {
 }
 .el-dialog__body {
   padding-bottom: 0;
+}
+.iconfont {
+  margin-right: 2px;
+  font-size: 12px;
+}
+.card {
+  padding: 13px;
+  background-color: rgba(122, 122, 122, 0.133);
+  width: 97%;
+  border-left: 5px green solid;
 }
 </style>

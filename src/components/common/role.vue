@@ -29,6 +29,7 @@
       @open="dialogOpen()"
       @close="close()"
       @closed="dialogClosed"
+      top="1vh"
     >
       <!-- 切换按钮 -->
       <span class="rightsText">权限:</span>
@@ -106,7 +107,7 @@ export default {
     },
     //角色列表获取函数
     async getRolelist() {
-      const res = await this.axios.get("rcpy/roleServlet?operation=listAllRole")
+      const res = await this.axios.get("/rcpy/roleServlet?operation=listAllRole")
       //  console.log(res) //{data: {…}, status: 200, statusText: "OK", headers: {…}, config: {…}, …}
       if (res.status !== 200) {
         return this.$message.error("角色获取失败")
@@ -119,7 +120,7 @@ export default {
       this.name = name
       console.log(id, name + "弹出框的要求")
       const res = await this.axios.post(
-        "rcpy/roleServlet?operation=saveRid",
+        "/rcpy/roleServlet?operation=saveRid",
         this.$qs.stringify({
           rid: id
         })
@@ -132,7 +133,7 @@ export default {
     // 弹出框后的数据请求 知道哪些应该被选中
     async showright() {
       const res = await this.axios.get(
-        "rcpy/roleServlet?operation=findRolePrivilegeMessage"
+        "/rcpy/roleServlet?operation=findRolePrivilegeMessage"
       )
       console.log(res)
       res.data.forEach((element, index) => {
@@ -170,7 +171,7 @@ export default {
 
       this.list2 = [...new Set(this.list2)]
       const res2 = await this.axios.post(
-        "rcpy/roleServlet?operation=updateRolePrivilege",
+        "/rcpy/roleServlet?operation=updateRolePrivilege",
         this.$qs.stringify(
           {
             value: this.list2,
@@ -209,17 +210,15 @@ export default {
   color: black;
 }
 .checkList {
-  /* background-color: yellow; */
   padding-left: 10px;
 }
 .rightsText {
-  /* background-color: red; */
   font-weight: bold;
-
   font-size: 16px;
 }
 .el-checkbox.is-bordered + .el-checkbox.is-bordered {
   margin-bottom: 10px;
   margin-left: 0px;
 }
+
 </style>

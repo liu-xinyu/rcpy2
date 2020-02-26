@@ -3,27 +3,20 @@
     <!-- 表格 -->
     <fieldset style="border:1px #e2e2e2 solid">
       <legend>文章列表</legend>
-      <el-table :data="newsList" border style="width: 100%" :header-cell-style="{background:'#f5f7fa',color:'#000'}">
+      <el-table
+        :data="newsList"
+        border
+        style="width: 100%"
+        :header-cell-style="{background:'#f5f7fa',color:'#000'}"
+      >
         <el-table-column prop="dname" label="院系" width="180"></el-table-column>
         <el-table-column prop="zwmc" label="专业名称" width="190"></el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
-            <el-tag
-              effect="dark"
-              v-if="scope.row.type === 1"
-              @click="check(scope.row.type,scope.row.uid)"
-            >
-              <span ref="wei">
-                <i class="iconfont icon-xing"></i> 未审核
-              </span>
-            </el-tag>
-            <el-tag
-              effect="dark"
-              v-else-if="scope.row.type === 2"
-              @click="check(scope.row.type,scope.row.uid)"
-            >
-              <span ref="yi">已审核</span>
-            </el-tag>
+            <el-button type="primary" size="small" @click="check(scope.row.type,scope.row.uid)">
+              <i class="iconfont icon-xing" v-show="scope.row.type==1"></i>
+              {{scope.row.type==2?'已审核':'未审核'}}
+            </el-button>
             <el-tag
               effect="dark"
               type="success"
@@ -34,30 +27,36 @@
               type="success"
               @click="dialogPlanVisible=true;planPage(scope.row.zwmc)"
             >查看计划安排表</el-tag>
-            <el-tag effect="dark" type="danger" @click="loadMajorPlan(scope.row.zwmc,scope.row.dname,'Jh')">下载专业计划安排表</el-tag>
-            <el-tag effect="dark" type="danger" @click="loadMajorPlan(scope.row.zwmc,scope.row.dname,'Hz')">下载学分学时汇总表</el-tag>
-            <el-tag effect="dark" type="danger" @click="loadMajorPlan(scope.row.zwmc,scope.row.dname,'Py')">下载专业培养方案</el-tag>
+            <el-tag
+              effect="dark"
+              type="danger"
+              @click="loadMajorPlan(scope.row.zwmc,scope.row.dname,'Jh')"
+            >下载专业计划安排表</el-tag>
+            <el-tag
+              effect="dark"
+              type="danger"
+              @click="loadMajorPlan(scope.row.zwmc,scope.row.dname,'Hz')"
+            >下载学分学时汇总表</el-tag>
+            <el-tag
+              effect="dark"
+              type="danger"
+              @click="loadMajorPlan(scope.row.zwmc,scope.row.dname,'Py')"
+            >下载专业培养方案</el-tag>
           </template>
         </el-table-column>
       </el-table>
     </fieldset>
     <!-- 院系文章 分页 -->
-    <el-pagination
-      background
-      :hide-on-single-page="paginationValue"
-      :total="count"
-      layout="prev, pager, next"
-      @current-change="essayHandleCurrentChange"
-    ></el-pagination>
-    <!-- 2 查看首页 -->
+    <pagination :page="page" @func="show"></pagination>
+    <!-- 2 查看首页 对话框-->
     <el-dialog
       title="首页信息"
       :visible.sync="dialogVisible"
       width="50%"
       top="2vh"
-      @close="homeArticle()"
+      @close="homeArticleClosed()"
     >
-      <el-form label-width="80px">
+      <el-form label-width="80px" :model="homedescription">
         <el-form-item label="专业英文..">
           <el-input placeholder="请合理输入" v-model="homedescription.ywmc"></el-input>
         </el-form-item>
@@ -143,16 +142,18 @@
   </div>
 </template>
 <script>
+import pagination from "./pagination"
 export default {
-  inject: ["reload"],
   data() {
     return {
       newsList: [], //信息的展示
       //   控制分页的显示
-      count: null, //信息的条数
-      paginationValue: true, //是否显示分页条
-      paginationCount: null, //分页数字
-      page: {
+      page: {           //父组件给子组件的信息
+        pageCount: null, //   第几页 用来分页页数的绑定
+        pageValue: null, //修改的对话框 false对话框隐藏
+        pageSize: 10
+      },
+      pageParams: {
         pageIndex: 1,
         pageSize: 10
       },
@@ -162,7 +163,7 @@ export default {
       homedescription: {},
       // 3.查看计划表的对话框的显示隐藏
       dialogPlanVisible: false,
-      // 3. 发送请求所需要的参数
+      // 3. 计划安排表中 发送请求所需要的参数
       planParameter: {
         pageIndex: 1,
         pageSize: 50
@@ -171,38 +172,45 @@ export default {
       planObject: [],
       // 3.查看计划安排表 分页的count
       planCount: null,
-      // 3.查看计划表 分页的显示隐藏 true为隐藏
-      // planPaginationValue: true,
+     
       // 3.查看计划表 必须有一个name
       planName: null,
       // 3.分页器的高亮问题
-      currentPageNumber:false
+      currentPageNumber: false
     }
+  },
+  components: {
+    pagination
   },
   methods: {
     // 显示数据的代码  拿到数据并且展示出来 绑定数据
     getNewsList() {
       this.axios
         .post(
-          "rcpy/departmentArticleServlet?operation=findPassUser",
-          this.$qs.stringify(this.page)
+          "/rcpy/departmentArticleServlet?operation=findPassUser",
+          this.$qs.stringify(this.pageParams)
         )
         .then(data => {
           console.log(data)
           this.newsList = data.data.list
-          this.count = data.data.count
-          console.log(this.count)
+          // console.log(this.count)
+          this.page.pageCount=data.data.count
+           this.page.pageCount > 10
+            ? (this.page.pageValue = false)
+            : (this.page.pageValue = true) //判断分页的显示隐藏
         })
-      this.paginationCount = parseInt(this.count / 10)
-      //console.log(parseInt(this.count/10),this.paginationCount+'分页数字')
-      this.count > 10
-        ? (this.paginationValue = false)
-        : (this.paginationValue = true)
+      
+      
+    },
+    // 子组件 分页
+    show(msg) {
+      this.pageParams.pageIndex = msg
+      this.getNewsList()
     },
     // 院系文章的分页 切换
-    essayHandleCurrentChange(newdata){
-      console.log(newdata);
-      this.page.pageIndex=newdata;
+    essayHandleCurrentChange(newdata) {
+      console.log(newdata)
+      this.pageParams.pageIndex = newdata
       this.getNewsList()
     },
     // 1.判断是否审核
@@ -212,7 +220,7 @@ export default {
       console.log(type, uid)
       this.axios
         .post(
-          "rcpy/publicServlet?operation=changeType",
+          "/rcpy/publicServlet?operation=changeType",
           this.$qs.stringify({
             type: type,
             uid: uid
@@ -222,33 +230,33 @@ export default {
           console.log(data)
           if (type === 1) {
             // 取消通过
-            this.$message.error("取消审核通过成功")
+            this.$message.success("取消审核通过成功")
           } else if (type === 2) {
             this.$message.success("审核成功!")
           }
+          this.getNewsList()
         })
-      this.reload()
     },
     // 2查看首页
     async checkHomePage(name) {
       console.log(name)
       const res = await this.axios.post(
-        "rcpy/publicServlet?operation=saveZyUserZWMC",
+        "/rcpy/publicServlet?operation=saveZyUserZWMC",
         this.$qs.stringify({
           zwmc: name
         })
       )
       console.log(res)
       const res2 = await this.axios.post(
-        "rcpy/publicServlet?operation=showRcpyFirstPageMessage"
+        "/rcpy/publicServlet?operation=showRcpyFirstPageMessage"
       )
-      if(res2.data==null) return
+      if (res2.data == null) return
       this.homedescription = res2.data
       //没有数据的话 控制台会 报错
       console.log(res2)
     },
     // 2.1 查看首页关闭的时候 显示的信息归位空 否则影响下一个数据的显示
-    homeArticle() {
+    homeArticleClosed() {
       this.homedescription = {}
     },
     // 3 计划安排表
@@ -259,7 +267,7 @@ export default {
       this.planName = name
       const res = this.axios
         .post(
-          "rcpy/publicServlet?operation=saveZyUserZWMC",
+          "/rcpy/publicServlet?operation=saveZyUserZWMC",
           this.$qs.stringify({
             zwmc: name
           })
@@ -269,7 +277,7 @@ export default {
         })
 
       this.axios
-        .get("rcpy/publicServlet?operation=showRcpyPlanMessage", {
+        .get("/rcpy/publicServlet?operation=showRcpyPlanMessage", {
           params: this.planParameter
         })
         .then(res => {
@@ -278,12 +286,9 @@ export default {
           this.planCount = res.data.count
           console.log(this.planCount)
           if (this.planCount > 50) {
-            // this.planPaginationValue = false
             this.currentPageNumber = true
           } else {
-            // this.planPaginationValue = true
             this.currentPageNumber = false
-
           }
         })
     },
@@ -300,20 +305,30 @@ export default {
       console.log("关闭")
     },
     // 4，下载专业计划安排表
-    loadMajorPlan(zwmc,dname,name){
-      this.axios.post(`rcpy/tableServlet?operation=copy${name}`,this.$qs.stringify({
-        zwmc:zwmc,
-        dname:dname
-      })).then(res=>{
-        if(res.data.flag==='0'){
-          this.$message.error('出现错误')
-        }else if(res.data.flag==='1'){
-          window.location.href="rcpy/tableServlet?operation=downLoadFile&filePath="+res.data.filePath+"&fileName="+res.data.fileName
-        }
-      }).catch(error=>{
-        this.$message.error('服务器出错请联系管理员 错误代码'+error)
-      })
-    },
+    loadMajorPlan(zwmc, dname, name) {
+      this.axios
+        .post(
+          `/rcpy/tableServlet?operation=copy${name}`,
+          this.$qs.stringify({
+            zwmc: zwmc,
+            dname: dname
+          })
+        )
+        .then(res => {
+          console.log(res);
+          if(res.data.flag==="2") return alert(res.data.errInfo)
+          if (res.data.flag === "0") {
+            this.$message.error("出现错误")
+          } else if (res.data.flag === "1") {
+            window.location.href =
+              "/rcpy/tableServlet?operation=downLoadFile&filePath=" +res.data.filePath +"&fileName=" +
+              res.data.fileName
+          }
+        })
+        .catch(error => {
+          this.$message.error("服务器出错请联系管理员 错误代码" + error)
+        })
+    }
     // 5.下载学分学时汇总表
     // 6.下载专业培养方案
   },
